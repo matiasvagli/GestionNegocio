@@ -1,0 +1,33 @@
+# Variables de entorno (NUNCA subir a GitHub)
+.env
+
+# Base de datos local
+db.sqlite3
+*.sqlite3
+
+# Cache de Python
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+
+# Logs
+*.log
+
+# Media files (uploads)
+media/
+
+# Static files compilados
+staticfiles/
+
+# IDE
+.vscode/
+.idea/
+
+# Entorno virtual
+env/
+venv/
+
+# Archivos de migraciones de Django (opcional, si quieres ignorar los pyc generados)
+**/migrations/*.pyc
+**/migrations/__pycache__/

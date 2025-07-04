@@ -1,0 +1,282 @@
+{% extends 'base.html' %}
+{% load formato_numeros %}
+{% block content %}
+
+<div style="max-width:800px; margin:auto; margin-bottom:-3.5em;">
+    {% if mensaje %}
+        <div style="background:#d4edda; color:#155724; border:1px solid #c3e6cb; padding:1em; border-radius:7px; margin-bottom:1em; font-size:1.0em;">
+            {{ mensaje }}
+        </div>
+    {% endif %}
+
+    <div style="text-align:right;">
+        <a href="{% url 'eliminar_ultimo_ticket' %}" class="btn btn-danger" onclick="return confirm('¿Seguro que deseas eliminar el último ticket de venta?');">
+            🗑️ Eliminar último ticket
+        </a>
+    </div>
+</div>
+
+<form method="post" style="max-width:800px; margin:auto; margin-top:0; background:#fff; padding:2.5em; border-radius:12px; box-shadow:0 2px 12px #0002; font-size:1.3em; transform:scale(0.8);">
+    {% csrf_token %}
+    
+    <!-- Información de la venta -->
+    <h2 style="color:#007bff; margin-bottom:1.5em;">🛒 Nueva Venta</h2>
+    
+    {{ venta_form.fecha }}
+    <div style="margin-bottom:1.5em;">
+        <label for="{{ venta_form.importe_total.id_for_label }}" class="form-label" style="font-size: 1.5em;">💰 Total del ticket ($)</label><br>
+        {{ venta_form.importe_total }}
+        {% if venta_form.importe_total.errors %}<div class="text-danger">{{ venta_form.importe_total.errors.0 }}</div>{% endif %}
+        <small style="color: #666;">Ingrese el monto total cobrado al cliente (ej: 5000 o 1500000)</small>
+    </div>
+    
+    <div style="margin-bottom:1.5em;">
+        {{ venta_form.facturada.label_tag }} {{ venta_form.facturada }}
+    </div>
+    
+    <hr style="margin:2em 0;">
+    
+    <!-- Líneas de venta -->
+    <h3 style="color:#28a745; margin-bottom:1em;">📦 Productos del Ticket</h3>
+    
+    {{ linea_formset.management_form }}
+    
+    <div id="lineas-container">
+        {% if linea_formset.forms|length == 0 %}
+            <div style="text-align:center; color:#888; font-size:1.2em; margin-bottom:2em;">Agregue productos al ticket usando el botón de abajo.</div>
+        {% else %}
+            {% for linea_form in linea_formset %}
+            <div class="linea-venta" style="border:1px solid #ddd; padding:1.5em; margin-bottom:1em; border-radius:8px; background:#f9f9f9;">
+                <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1em;">
+                    <h4 style="margin:0; color:#666;">Producto #{{ forloop.counter }}</h4>
+                    {% if forloop.counter > 1 %}
+                    <button type="button" class="btn btn-danger btn-sm" onclick="eliminarLinea(this)">🗑️ Eliminar</button>
+                    {% endif %}
+                </div>
+                
+                <div style="display:grid; grid-template-columns:1fr 1fr; gap:1em;">
+                    <!-- Categoría -->
+                    <div>
+                        <label class="form-label">Categoría</label><br>
+                        <div class="btn-group" role="group">
+                            <input type="radio" class="btn-check" name="{{ linea_form.categoria.name }}" id="cat-blancos-{{ forloop.counter }}" value="blancos" autocomplete="off" {% if linea_form.categoria.value == 'blancos' %}checked{% endif %}{% if forloop.first %} onchange="toggleCamposVenta(1)"{% endif %}>
+                            <label class="btn btn-outline-primary" for="cat-blancos-{{ forloop.counter }}">🥚 Blancos</label>
+                            <input type="radio" class="btn-check" name="{{ linea_form.categoria.name }}" id="cat-color-{{ forloop.counter }}" value="color" autocomplete="off" {% if linea_form.categoria.value == 'color' %}checked{% endif %}{% if forloop.first %} onchange="toggleCamposVenta(1)"{% endif %}>
+                            <label class="btn btn-outline-warning" for="cat-color-{{ forloop.counter }}">🥚 Color</label>
+                            <input type="radio" class="btn-check" name="{{ linea_form.categoria.name }}" id="cat-otros-{{ forloop.counter }}" value="otros" autocomplete="off" {% if linea_form.categoria.value == 'otros' %}checked{% endif %}{% if forloop.first %} onchange="toggleCamposVenta(1)"{% endif %}>
+                            <label class="btn btn-outline-secondary" for="cat-otros-{{ forloop.counter }}">📦 Otros</label>
+                        </div>
+                        {% if linea_form.categoria.errors %}<div class="text-danger">{{ linea_form.categoria.errors.0 }}</div>{% endif %}
+                    </div>
+                    
+                    <!-- Subcategoría -->
+                    <div id="div-subcategoria-{{ forloop.counter }}">
+                        <label class="form-label">Subcategoría</label><br>
+                        {{ linea_form.subcategoria }}
+                        {% if linea_form.subcategoria.errors %}<div class="text-danger">{{ linea_form.subcategoria.errors.0 }}</div>{% endif %}
+                    </div>
+                    
+                    <!-- Unidad -->
+                    <div id="div-unidad-{{ forloop.counter }}">
+                        <label class="form-label">Unidad</label><br>
+                        {{ linea_form.unidad }}
+                        {% if linea_form.unidad.errors %}<div class="text-danger">{{ linea_form.unidad.errors.0 }}</div>{% endif %}
+                    </div>
+                    
+                    <!-- Cantidad -->
+                    <div id="div-cantidad-{{ forloop.counter }}">
+                        <label class="form-label">Cantidad</label><br>
+                        {{ linea_form.cantidad }}
+                        {% if linea_form.cantidad.errors %}<div class="text-danger">{{ linea_form.cantidad.errors.0 }}</div>{% endif %}
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        {% endif %}
+    </div>
+    
+    <div style="text-align:center; margin:1.5em 0;">
+        <button type="button" class="btn btn-success btn-lg" onclick="agregarLinea()">➕ Agregar Producto</button>
+    </div>
+    
+    <button type="submit" style="background:#7700ff; color:#fff; border:none; padding:1em 2.5em; border-radius:7px; font-size:1.2em; cursor:pointer; width:100%;">✅ Registrar Venta</button>
+</form>
+
+<script>
+let lineaCounter = parseInt("{{ linea_formset|length|default:0 }}");
+
+function agregarLinea() {
+    lineaCounter++;
+    const container = document.getElementById('lineas-container');
+    const lineaDiv = document.createElement('div');
+    lineaDiv.className = 'linea-venta';
+    lineaDiv.style.cssText = 'border:1px solid #ddd; padding:1.5em; margin-bottom:1em; border-radius:8px; background:#f9f9f9;';
+    
+    lineaDiv.innerHTML = `
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1em;">
+            <h4 style="margin:0; color:#666;">Producto #${lineaCounter}</h4>
+            <button type="button" class="btn btn-danger btn-sm" onclick="eliminarLinea(this)">🗑️ Eliminar</button>
+        </div>
+        
+        <div style="display:grid; grid-template-columns:1fr 1fr; gap:1em;">
+            <div>
+                <label class="form-label">Categoría</label><br>
+                <div class="btn-group" role="group">
+                    <input type="radio" class="btn-check" name="lineas-${lineaCounter-1}-categoria" id="cat-blancos-${lineaCounter}" value="blancos" autocomplete="off">
+                    <label class="btn btn-outline-primary" for="cat-blancos-${lineaCounter}">🥚 Blancos</label>
+                    <input type="radio" class="btn-check" name="lineas-${lineaCounter-1}-categoria" id="cat-color-${lineaCounter}" value="color" autocomplete="off">
+                    <label class="btn btn-outline-warning" for="cat-color-${lineaCounter}">🥚 Color</label>
+                    <input type="radio" class="btn-check" name="lineas-${lineaCounter-1}-categoria" id="cat-otros-${lineaCounter}" value="otros" autocomplete="off">
+                    <label class="btn btn-outline-secondary" for="cat-otros-${lineaCounter}">📦 Otros</label>
+                </div>
+            </div>
+            
+            <div id="div-subcategoria-${lineaCounter}">
+                <label class="form-label">Subcategoría</label><br>
+                <select name="lineas-${lineaCounter-1}-subcategoria" class="form-control form-control-lg">
+                    <option value="">---------</option>
+                    <option value="E">E</option>
+                    <option value="1">1</option>
+                    <option value="2">2</option>
+                    <option value="M">M</option>
+                    <option value="3">3</option>
+                    <option value="4">4</option>
+                    <option value="S">S</option>
+                    <option value="R">R</option>
+                </select>
+            </div>
+            
+            <div id="div-unidad-${lineaCounter}">
+                <label class="form-label">Unidad</label><br>
+                <select name="lineas-${lineaCounter-1}-unidad" class="form-control form-control-lg">
+                    <option value="">---------</option>
+                    <option value="cajon">Cajón</option>
+                    <option value="maple">Maple</option>
+                    <option value="docena">Docena</option>
+                </select>
+            </div>
+            
+            <div id="div-cantidad-${lineaCounter}">
+                <label class="form-label">Cantidad</label><br>
+                <input type="number" name="lineas-${lineaCounter-1}-cantidad" class="form-control form-control-lg" min="0.01" step="0.01">
+            </div>
+        </div>
+    `;
+    
+    container.appendChild(lineaDiv);
+    
+    // Agregar listeners para los nuevos radio buttons
+    const radios = lineaDiv.querySelectorAll('input[type="radio"]');
+    radios.forEach(radio => {
+        radio.addEventListener('change', () => toggleCamposVenta(lineaCounter));
+    });
+    
+    // Actualizar el management form
+    const totalForms = document.getElementById('id_lineas-TOTAL_FORMS');
+    totalForms.value = lineaCounter;
+}
+
+function eliminarLinea(button) {
+    const lineaDiv = button.closest('.linea-venta');
+    lineaDiv.remove();
+    
+    // Actualizar contadores
+    const lineas = document.querySelectorAll('.linea-venta');
+    lineas.forEach((linea, index) => {
+        const titulo = linea.querySelector('h4');
+        titulo.textContent = `Producto #${index + 1}`;
+    });
+    
+    // Actualizar el management form
+    const totalForms = document.getElementById('id_lineas-TOTAL_FORMS');
+    totalForms.value = lineas.length;
+}
+
+function toggleCamposVenta(lineaNum) {
+    let cat;
+    
+    // Buscar el radio button seleccionado para esta línea
+    if (lineaNum === 1) {
+        // Para el primer producto (formulario estático)
+        cat = document.querySelector('input[name="lineas-0-categoria"]:checked');
+    } else {
+        // Para productos dinámicos
+        cat = document.querySelector(`input[name="lineas-${lineaNum-1}-categoria"]:checked`);
+    }
+    
+    const esHuevos = cat && (cat.value === 'blancos' || cat.value === 'color');
+    
+    document.getElementById(`div-subcategoria-${lineaNum}`).style.display = esHuevos ? 'block' : 'none';
+    document.getElementById(`div-unidad-${lineaNum}`).style.display = esHuevos ? 'block' : 'none';
+    document.getElementById(`div-cantidad-${lineaNum}`).style.display = esHuevos ? 'block' : 'none';
+}
+
+document.addEventListener('DOMContentLoaded', function() {
+    // Agregar listeners para las líneas existentes
+    const lineas = document.querySelectorAll('.linea-venta');
+    lineas.forEach((linea, index) => {
+        const radios = linea.querySelectorAll('input[type="radio"]');
+        radios.forEach(radio => {
+            radio.addEventListener('change', () => toggleCamposVenta(index + 1));
+        });
+    });
+    
+    // Inicializar estado para todas las líneas
+    lineas.forEach((linea, index) => {
+        toggleCamposVenta(index + 1);
+    });
+});
+
+// Función para formatear números en tiempo real (solo tooltip)
+function formatearNumeroInput(input) {
+    let valor = input.value;
+    if (valor) {
+        // Solo mostrar tooltip, NO modificar el valor
+        let numero = parseFloat(valor.replace(',', '.'));
+        if (!isNaN(numero)) {
+            input.title = `Valor: $${numero.toLocaleString('es-AR', {minimumFractionDigits: 2, maximumFractionDigits: 2})}`;
+        }
+    }
+}
+
+// Agregar evento al campo de importe total
+document.addEventListener('DOMContentLoaded', function() {
+    const importeTotal = document.querySelector('input[name="importe_total"]');
+    if (importeTotal) {
+        importeTotal.addEventListener('input', function() {
+            formatearNumeroInput(this);
+        });
+        
+        // Agregar placeholder más descriptivo
+        importeTotal.placeholder = 'Ej: 15000.50 o 1500000';
+    }
+    
+    // También para campos de monto en gastos
+    const montoInputs = document.querySelectorAll('input[name="monto"], input[name*="monto"]');
+    montoInputs.forEach(input => {
+        input.addEventListener('input', function() {
+            formatearNumeroInput(this);
+        });
+    });
+});
+
+</script>
+
+<style>
+.form-control-lg, select.form-control-lg, input.form-control-lg {
+    font-size: 1em;
+    padding: 0.7em 1em;
+    border-radius: 4px;
+    min-width: 200px;
+}
+.btn-group .btn {
+    margin-right: 5px;
+}
+.linea-venta {
+    transition: all 0.3s ease;
+}
+.linea-venta:hover {
+    box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+}
+</style>
+{% endblock %}

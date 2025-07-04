@@ -1,0 +1,282 @@
+{% extends 'base.html' %}
+{% load formato_numeros %}
+{% block content %}
+<div class="container-fluid">
+    <div class="row justify-content-center">
+        <div class="col-12 col-md-8 col-lg-6">
+            <!-- Header Section -->
+            <div class="text-center mb-4">
+                <h1 class="display-6 text-danger mb-2">
+                    <i class="bi bi-receipt-cutoff me-2"></i>Gastos y Desperdicios
+                </h1>
+                <p class="text-muted lead">Registra gastos operativos y desperdicios de stock</p>
+            </div>
+
+            <!-- Main Form Card -->
+            <div class="card shadow-lg border-0">
+                <div class="card-header bg-gradient text-white" style="background: linear-gradient(135deg, #dc3545, #c82333);">
+                    <div class="d-flex align-items-center">
+                        <i class="bi bi-plus-circle-fill me-2"></i>
+                        <h5 class="card-title mb-0">Nuevo Registro</h5>
+                    </div>
+                </div>
+                <div class="card-body p-4">
+                    {% if not mensaje %}
+                    <form method="post" id="gastoForm">
+                        {% csrf_token %}
+                        
+                        <!-- Tipo Selection -->
+                        <div class="mb-4">
+                            <label for="tipo" class="form-label fw-bold">
+                                <i class="bi bi-tags-fill text-primary me-1"></i>Tipo de Registro
+                            </label>
+                            <select name="tipo" id="tipo" class="form-select form-select-lg" required onchange="mostrarCampos()">
+                                <option value="gasto" selected>💰 Gasto Operativo</option>
+                                <option value="desperdicio">🗑️ Desperdicio de Stock</option>
+                            </select>
+                            <div class="form-text">Selecciona si es un gasto general o desperdicio de productos</div>
+                        </div>
+                        <!-- Campos para Gastos -->
+                        <div id="gasto_fields">
+                            <div class="mb-4">
+                                <label for="descripcion" class="form-label fw-bold">
+                                    <i class="bi bi-card-text text-success me-1"></i>Tipo de Gasto
+                                </label>
+                                <select name="descripcion" id="descripcion" class="form-select" required>
+                                    {% for val, label in gasto_tipos %}
+                                        {% if val != 'sueldo' and val != 'aguinaldo' %}
+                                            <option value="{{ val }}">{{ label }}</option>
+                                        {% endif %}
+                                    {% endfor %}
+                                </select>
+                                <div class="form-text">Categoría del gasto operativo</div>
+                            </div>
+                        </div>
+
+                        <!-- Campos para Desperdicios -->
+                        <div id="desperdicio_fields" style="display:none;">
+                            <div class="row">
+                                <div class="col-md-6 mb-3">
+                                    <label for="categoria" class="form-label fw-bold">
+                                        <i class="bi bi-collection text-warning me-1"></i>Categoría
+                                    </label>
+                                    <select name="categoria" id="categoria" class="form-select" required>
+                                        {% for val, label in categorias %}
+                                            <option value="{{ val }}">{{ label }}</option>
+                                        {% endfor %}
+                                    </select>
+                                </div>
+                                <div class="col-md-6 mb-3">
+                                    <label for="subcategoria" class="form-label fw-bold">
+                                        <i class="bi bi-diagram-3 text-info me-1"></i>Subcategoría
+                                    </label>
+                                    <select name="subcategoria" id="subcategoria" class="form-select" required>
+                                        {% for val, label in subcategorias %}
+                                            <option value="{{ val }}">{{ label }}</option>
+                                        {% endfor %}
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="alert alert-warning d-flex align-items-center" role="alert">
+                                <i class="bi bi-exclamation-triangle-fill me-2"></i>
+                                <div>
+                                    <strong>Desperdicio:</strong> Se registrará como pérdida de stock y se descontará del inventario.
+                                </div>
+                            </div>
+                        </div>
+                        <!-- Campo de Monto -->
+                        <div class="mb-4">
+                            <label for="monto" class="form-label fw-bold">
+                                <span id="monto-icon">💰</span> 
+                                <span id="monto-label">Monto ($)</span>
+                            </label>
+                            <div class="input-group input-group-lg">
+                                <span class="input-group-text bg-light">
+                                    <i class="bi bi-currency-dollar"></i>
+                                </span>
+                                <input type="number" 
+                                       name="monto" 
+                                       id="monto" 
+                                       class="form-control" 
+                                       step="0.01" 
+                                       min="0" 
+                                       required
+                                       placeholder="Ingrese el monto o cantidad">
+                            </div>
+                            <div class="form-text">
+                                <span id="monto-help">Para gastos: monto en pesos (ej: 15000.50). Para desperdicios: cantidad de huevos.</span>
+                            </div>
+                            <div id="monto-preview" class="mt-2"></div>
+                        </div>
+
+                        <!-- Botones de Acción -->
+                        <div class="d-grid gap-2">
+                            <button type="submit" class="btn btn-danger btn-lg">
+                                <i class="bi bi-check-circle-fill me-2"></i>Registrar
+                            </button>
+                            <a href="{% url 'dashboard' %}" class="btn btn-outline-secondary">
+                                <i class="bi bi-arrow-left me-2"></i>Volver al Dashboard
+                            </a>
+                        </div>
+                    </form>
+                    {% endif %}
+                </div>
+            </div>
+
+            <!-- Mensaje de Éxito con opciones -->
+            {% if mensaje %}
+                <div style="background:#d4edda; color:#155724; border:1px solid #c3e6cb; padding:1em; border-radius:7px; margin:1.5em auto; font-size:1.1em; max-width:800px; text-align:center;">
+                    <i class="bi bi-check-circle-fill me-2"></i> {{ mensaje }}<br><br>
+                    <a href="{% url 'gastos_ingreso' %}" class="btn btn-danger btn-lg me-2">
+                        <i class="bi bi-plus-circle-fill me-1"></i>Registrar otro gasto
+                    </a>
+                    <a href="{% url 'dashboard' %}" class="btn btn-secondary btn-lg">
+                        <i class="bi bi-arrow-left me-1"></i>Volver al Dashboard
+                    </a>
+                </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+<script>
+function mostrarCampos() {
+    const tipo = document.getElementById('tipo').value;
+    const gastoFields = document.getElementById('gasto_fields');
+    const desperdicioFields = document.getElementById('desperdicio_fields');
+    const montoIcon = document.getElementById('monto-icon');
+    const montoLabel = document.getElementById('monto-label');
+    const montoHelp = document.getElementById('monto-help');
+    const montoInput = document.getElementById('monto');
+    
+    if (tipo === 'gasto') {
+        gastoFields.style.display = '';
+        desperdicioFields.style.display = 'none';
+        montoIcon.textContent = '💰';
+        montoLabel.textContent = 'Monto ($)';
+        montoHelp.textContent = 'Ingrese el monto en pesos (ej: 15000.50)';
+        montoInput.placeholder = 'Ej: 15000.50';
+        
+        // Animación de entrada
+        gastoFields.classList.add('fade-in');
+        setTimeout(() => gastoFields.classList.remove('fade-in'), 500);
+    } else {
+        gastoFields.style.display = 'none';
+        desperdicioFields.style.display = '';
+        montoIcon.textContent = '🥚';
+        montoLabel.textContent = 'Cantidad (huevos)';
+        montoHelp.textContent = 'Ingrese la cantidad de huevos desperdiciados';
+        montoInput.placeholder = 'Ej: 360 (30 docenas)';
+        
+        // Animación de entrada
+        desperdicioFields.classList.add('fade-in');
+        setTimeout(() => desperdicioFields.classList.remove('fade-in'), 500);
+    }
+    
+    // Limpiar preview
+    document.getElementById('monto-preview').innerHTML = '';
+}
+
+// Función para formatear números en tiempo real
+function formatearNumeroInput(input) {
+    const valor = input.value.replace(/[^\d.,]/g, '');
+    const preview = document.getElementById('monto-preview');
+    const tipo = document.getElementById('tipo').value;
+    
+    if (valor) {
+        const numero = parseFloat(valor.replace(',', '.'));
+        if (!isNaN(numero)) {
+            if (tipo === 'gasto') {
+                const formatted = numero.toLocaleString('es-AR', {
+                    style: 'currency',
+                    currency: 'ARS',
+                    minimumFractionDigits: 2,
+                    maximumFractionDigits: 2
+                });
+                preview.innerHTML = `<div class="badge bg-success fs-6">💰 ${formatted}</div>`;
+            } else {
+                const docenas = Math.floor(numero / 12);
+                const sueltos = numero % 12;
+                preview.innerHTML = `<div class="badge bg-warning text-dark fs-6">🥚 ${numero} huevos (${docenas} docenas + ${sueltos} sueltos)</div>`;
+            }
+        }
+    } else {
+        preview.innerHTML = '';
+    }
+}
+
+// Validación del formulario
+function validarFormulario(event) {
+    const monto = document.getElementById('monto').value;
+    if (!monto || parseFloat(monto) <= 0) {
+        event.preventDefault();
+        alert('⚠️ Debe ingresar un monto o cantidad válida mayor a 0');
+        return false;
+    }
+    
+    // Mostrar loading en el botón
+    const submitBtn = event.target.querySelector('button[type="submit"]');
+    submitBtn.innerHTML = '<i class="bi bi-hourglass-split me-2"></i>Guardando...';
+    submitBtn.disabled = true;
+    
+    return true;
+}
+
+document.addEventListener('DOMContentLoaded', function() {
+    mostrarCampos();
+    
+    // Formatear el campo de monto
+    const montoInput = document.getElementById('monto');
+    if (montoInput) {
+        montoInput.addEventListener('input', function() {
+            formatearNumeroInput(this);
+        });
+    }
+    
+    // Validación del formulario
+    const form = document.getElementById('gastoForm');
+    if (form) {
+        form.addEventListener('submit', validarFormulario);
+    }
+    
+    // Auto-dismiss de alertas después de 5 segundos
+    setTimeout(() => {
+        const alerts = document.querySelectorAll('.alert-success');
+        alerts.forEach(alert => {
+            const bsAlert = new bootstrap.Alert(alert);
+            bsAlert.close();
+        });
+    }, 5000);
+});
+
+// Añadir estilos CSS para animaciones
+const style = document.createElement('style');
+style.textContent = `
+    .fade-in {
+        animation: fadeIn 0.5s ease-in;
+    }
+    
+    @keyframes fadeIn {
+        from { opacity: 0; transform: translateY(-10px); }
+        to { opacity: 1; transform: translateY(0); }
+    }
+    
+    .form-control:focus, .form-select:focus {
+        border-color: #dc3545;
+        box-shadow: 0 0 0 0.2rem rgba(220, 53, 69, 0.25);
+    }
+    
+    .card {
+        transition: transform 0.2s ease-in-out;
+    }
+    
+    .card:hover {
+        transform: translateY(-2px);
+    }
+    
+    .input-group-text {
+        border-color: #dc3545;
+    }
+`;
+document.head.appendChild(style);
+</script>
+{% endblock %}

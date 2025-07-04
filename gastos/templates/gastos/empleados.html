@@ -1,0 +1,495 @@
+{% extends 'base.html' %}
+{% load formato_numeros %}
+{% block content %}
+
+<!-- Header con gradiente -->
+<div class="bg-gradient-primary text-white p-4 rounded-3 mb-4 shadow">
+    <div class="row align-items-center">
+        <div class="col">
+            <h1 class="mb-0 fw-bold">👥 Gestión de Empleados</h1>
+            <p class="mb-0 opacity-75">Administra empleados, pagos de sueldos y aguinaldos</p>
+        </div>
+        <div class="col-auto">
+            <div class="bg-white bg-opacity-25 rounded-circle p-3">
+                <i class="fas fa-users fa-2x"></i>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Sección de búsqueda y nuevo empleado -->
+<div class="row g-4 mb-4">
+    <div class="col-md-6">
+        <div class="card shadow-sm">
+            <div class="card-header bg-light">
+                <h5 class="mb-0"><i class="fas fa-search me-2"></i>Buscar Empleados</h5>
+            </div>
+            <div class="card-body">
+                <form method="get" class="d-flex gap-2">
+                    <input type="text" name="buscar" value="{{ busqueda }}" 
+                           class="form-control" placeholder="Buscar por nombre, apellido o DNI...">
+                    <button type="submit" class="btn btn-primary">
+                        <i class="fas fa-search"></i> Buscar
+                    </button>
+                    <a href="{% url 'empleados' %}" class="btn btn-outline-secondary">
+                        <i class="fas fa-times"></i> Limpiar
+                    </a>
+                </form>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card shadow-sm h-100">
+            <div class="card-header bg-success text-white">
+                <h5 class="mb-0"><i class="fas fa-user-plus me-2"></i>Nuevo Empleado</h5>
+            </div>
+            <div class="card-body d-flex align-items-center justify-content-center">
+                <button type="button" class="btn btn-success btn-lg" data-bs-toggle="modal" data-bs-target="#modalNuevoEmpleado">
+                    <i class="fas fa-plus me-2"></i>Agregar
+                </button>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card shadow-sm h-100">
+            <div class="card-header bg-info text-white">
+                <h5 class="mb-0"><i class="fas fa-download me-2"></i>Exportar</h5>
+            </div>
+            <div class="card-body d-flex align-items-center justify-content-center">
+                <a href="{% url 'exportar_sueldos_csv' %}" class="btn btn-info btn-lg">
+                    <i class="fas fa-file-csv me-2"></i>Sueldos CSV
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Lista de empleados -->
+<div class="row">
+    {% for empleado in empleados %}
+    <div class="col-lg-6 col-xl-4 mb-3">
+        <div class="card shadow-sm empleado-card {% if not empleado.activo %}bg-light{% endif %}">
+            <!-- Header básico - siempre visible -->
+            <div class="card-header d-flex justify-content-between align-items-center" 
+                 style="cursor: pointer;" onclick="toggleDetalles({{ empleado.id }})">
+                <div>
+                    <h6 class="mb-0 fw-bold">{{ empleado.nombre }} {{ empleado.apellido }}</h6>
+                    <small class="text-muted">
+                        {% if empleado.activo %}
+                            <span class="badge bg-success">Activo</span>
+                        {% else %}
+                            <span class="badge bg-secondary">Inactivo</span>
+                        {% endif %}
+                        {% if empleado.ultimo_sueldo and empleado.ultimo_sueldo.monto %}
+                            | Último sueldo: {{ empleado.ultimo_sueldo.monto|formato_dinero }} ({{ empleado.ultimo_sueldo.fecha|date:'d/m/Y' }})
+                        {% else %}
+                            | Sin sueldos registrados
+                        {% endif %}
+                    </small>
+                </div>
+                <div>
+                    <i class="fas fa-chevron-down" id="chevron-{{ empleado.id }}"></i>
+                </div>
+            </div>
+            
+            <!-- Detalles colapsables -->
+            <div class="collapse" id="detalles-{{ empleado.id }}">
+                <div class="card-body">
+                    <div class="row g-2">
+                        <div class="col-6">
+                            <small class="text-muted">DNI:</small>
+                            <div>{{ empleado.dni|default:"No especificado" }}</div>
+                        </div>
+                        <div class="col-6">
+                            <small class="text-muted">Teléfono:</small>
+                            <div>{{ empleado.telefono|default:"No especificado" }}</div>
+                        </div>
+                        <div class="col-12">
+                            <small class="text-muted">Email:</small>
+                            <div>{{ empleado.email|default:"No especificado" }}</div>
+                        </div>
+                        <div class="col-12">
+                            <small class="text-muted">CBU/CVU:</small>
+                            <div>{{ empleado.cbu_cvu|default:"No especificado" }}</div>
+                        </div>
+                        <div class="col-6">
+                            <small class="text-muted">Fecha Ingreso:</small>
+                            <div>{{ empleado.fecha_ingreso|date:'d/m/Y'|default:"No especificada" }}</div>
+                        </div>
+                        <div class="col-6">
+                            <small class="text-muted">Dirección:</small>
+                            <div>{{ empleado.direccion|default:"No especificada" }}</div>
+                        </div>
+                    </div>
+                    
+                    <hr class="my-3">
+                    
+                    <!-- Últimos pagos -->
+                    <div class="row text-center">
+                        <div class="col-6">
+                            <small class="text-muted">Último Sueldo</small>
+                            {% if empleado.ultimo_sueldo and empleado.ultimo_sueldo.monto %}
+                                <div class="fw-bold text-success">{{ empleado.ultimo_sueldo.monto|formato_dinero }}</div>
+                                <small class="text-muted">{{ empleado.ultimo_sueldo.fecha|date:'d/m/Y' }}</small>
+                            {% else %}
+                                <div class="text-muted">Sin registro</div>
+                            {% endif %}
+                        </div>
+                        <div class="col-6">
+                            <small class="text-muted">Último Aguinaldo/Bono</small>
+                            {% if empleado.ultimo_aguinaldo and empleado.ultimo_aguinaldo.monto %}
+                                <div class="fw-bold text-warning">{{ empleado.ultimo_aguinaldo.monto|formato_dinero }}</div>
+                                <small class="text-muted">{{ empleado.ultimo_aguinaldo.fecha|date:'d/m/Y' }}</small>
+                            {% else %}
+                                <div class="text-muted">Sin registro</div>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Footer con acciones -->
+                <div class="card-footer">
+                    <div class="row g-2">
+                        <div class="col-4">
+                            <button class="btn btn-outline-primary btn-sm w-100" onclick="pagarSueldo({{ empleado.id }})">
+                                <i class="fas fa-dollar-sign me-1"></i>Sueldo
+                            </button>
+                        </div>
+                        <div class="col-4">
+                            <button class="btn btn-outline-warning btn-sm w-100" onclick="pagarAguinaldo({{ empleado.id }})">
+                                <i class="fas fa-gift me-1"></i>Aguinaldo/Bono
+                            </button>
+                        </div>
+                        <div class="col-4">
+                            <div class="dropdown">
+                                <button class="btn btn-outline-secondary btn-sm dropdown-toggle w-100" data-bs-toggle="dropdown">
+                                    <i class="fas fa-cog"></i>
+                                </button>
+                                <ul class="dropdown-menu">
+                                    <li><a class="dropdown-item" href="#" onclick="editarEmpleado({{ empleado.id }})">
+                                        <i class="fas fa-edit me-2"></i>Editar
+                                    </a></li>
+                                    <li><a class="dropdown-item" href="#" onclick="toggleActivo({{ empleado.id }})">
+                                        <i class="fas fa-toggle-{% if empleado.activo %}off{% else %}on{% endif %} me-2"></i>
+                                        {% if empleado.activo %}Desactivar{% else %}Activar{% endif %}
+                                    </a></li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    {% empty %}
+    <div class="col-12">
+        <div class="alert alert-info text-center">
+            <i class="fas fa-info-circle me-2"></i>
+            {% if busqueda %}
+                No se encontraron empleados que coincidan con "{{ busqueda }}".
+            {% else %}
+                No hay empleados registrados aún.
+            {% endif %}
+        </div>
+    </div>
+    {% endfor %}
+</div>
+
+<!-- Modal Nuevo Empleado -->
+<div class="modal fade" id="modalNuevoEmpleado" tabindex="-1">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header bg-success text-white">
+                <h5 class="modal-title"><i class="fas fa-user-plus me-2"></i>Nuevo Empleado</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+            </div>
+            <form method="post" action="{% url 'empleado_crear' %}">
+                <div class="modal-body">
+                    {% csrf_token %}
+                    <div class="row g-3">
+                        <div class="col-md-6">
+                            <label class="form-label">Nombre *</label>
+                            <input type="text" name="nombre" class="form-control" required>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label">Apellido *</label>
+                            <input type="text" name="apellido" class="form-control" required>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label">DNI</label>
+                            <input type="text" name="dni" class="form-control">
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label">Teléfono</label>
+                            <input type="text" name="telefono" class="form-control">
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label">Email</label>
+                            <input type="email" name="email" class="form-control">
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label">Fecha de Ingreso</label>
+                            <input type="date" name="fecha_ingreso" class="form-control">
+                        </div>
+                        <div class="col-12">
+                            <label class="form-label">CBU/CVU</label>
+                            <input type="text" name="cbu_cvu" class="form-control" placeholder="Para transferencias bancarias">
+                        </div>
+                        <div class="col-12">
+                            <label class="form-label">Dirección</label>
+                            <textarea name="direccion" class="form-control" rows="2"></textarea>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                    <button type="submit" class="btn btn-success">
+                        <i class="fas fa-save me-2"></i>Guardar Empleado
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- Modal Editar Empleado -->
+<div class="modal fade" id="modalEditarEmpleado" tabindex="-1">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header bg-primary text-white">
+                <h5 class="modal-title"><i class="fas fa-user-edit me-2"></i>Editar Empleado</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+            </div>
+            <form id="formEditarEmpleado" method="post">
+                <div class="modal-body">
+                    {% csrf_token %}
+                    <div class="row g-3">
+                        <div class="col-md-6">
+                            <label class="form-label">Nombre *</label>
+                            <input type="text" name="nombre" id="edit_nombre" class="form-control" required>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label">Apellido *</label>
+                            <input type="text" name="apellido" id="edit_apellido" class="form-control" required>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label">DNI</label>
+                            <input type="text" name="dni" id="edit_dni" class="form-control">
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label">Teléfono</label>
+                            <input type="text" name="telefono" id="edit_telefono" class="form-control">
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label">Email</label>
+                            <input type="email" name="email" id="edit_email" class="form-control">
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label">Fecha de Ingreso</label>
+                            <input type="date" name="fecha_ingreso" id="edit_fecha_ingreso" class="form-control">
+                        </div>
+                        <div class="col-12">
+                            <label class="form-label">CBU/CVU</label>
+                            <input type="text" name="cbu_cvu" id="edit_cbu_cvu" class="form-control">
+                        </div>
+                        <div class="col-12">
+                            <label class="form-label">Dirección</label>
+                            <textarea name="direccion" id="edit_direccion" class="form-control" rows="2"></textarea>
+                        </div>
+                        <div class="col-12">
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" name="activo" id="edit_activo">
+                                <label class="form-check-label" for="edit_activo">
+                                    Empleado activo
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                    <button type="submit" class="btn btn-primary">
+                        <i class="fas fa-save me-2"></i>Actualizar Empleado
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- Modal Pagar Sueldo/Aguinaldo -->
+<div class="modal fade" id="modalPagarSueldo" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header bg-warning text-dark">
+                <h5 class="modal-title"><i class="fas fa-dollar-sign me-2"></i><span id="tipoPagoTitle">Pagar Sueldo</span></h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <form id="formPagarSueldo" method="post">
+                <div class="modal-body">
+                    {% csrf_token %}
+                    <input type="hidden" name="tipo" id="tipo_pago">
+                    <div class="mb-3">
+                        <label class="form-label">Empleado</label>
+                        <input type="text" id="nombreEmpleadoPago" class="form-control" readonly>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Monto *</label>
+                        <input type="number" name="monto" class="form-control" step="0.01" min="0" required>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Fecha</label>
+                        <input type="date" name="fecha" class="form-control" value="{{ "now"|date:"Y-m-d" }}">
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Descripción</label>
+                        <textarea name="descripcion" class="form-control" rows="2" placeholder="Información adicional..."></textarea>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                    <button type="submit" class="btn btn-warning">
+                        <i class="fas fa-money-bill-wave me-2"></i>Registrar Pago
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<style>
+    .bg-gradient-primary {
+        background: linear-gradient(135deg, #007bff 0%, #0056b3 100%);
+    }
+    .empleado-card {
+        transition: all 0.3s ease;
+    }
+    .empleado-card:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 8px 25px rgba(0,0,0,0.1);
+    }
+</style>
+
+<script>
+// Datos de empleados para JavaScript
+const empleados = {
+    {% for empleado in empleados %}
+    {{ empleado.id }}: {
+        'nombre': '{{ empleado.nombre|escapejs }}',
+        'apellido': '{{ empleado.apellido|escapejs }}',
+        'dni': '{{ empleado.dni|escapejs }}',
+        'telefono': '{{ empleado.telefono|escapejs }}',
+        'email': '{{ empleado.email|escapejs }}',
+        'direccion': '{{ empleado.direccion|escapejs }}',
+        'fecha_ingreso': '{{ empleado.fecha_ingreso|date:"Y-m-d"|default:"" }}',
+        'cbu_cvu': '{{ empleado.cbu_cvu|escapejs }}',
+        'activo': {{ empleado.activo|yesno:"true,false" }}
+    }{% if not forloop.last %},{% endif %}
+    {% endfor %}
+};
+
+function toggleDetalles(empleadoId) {
+    const collapse = new bootstrap.Collapse(document.getElementById('detalles-' + empleadoId));
+    const chevron = document.getElementById('chevron-' + empleadoId);
+    
+    // Cambiar dirección del chevron
+    chevron.classList.toggle('fa-chevron-down');
+    chevron.classList.toggle('fa-chevron-up');
+}
+
+function editarEmpleado(empleadoId) {
+    const emp = empleados[empleadoId];
+    if (!emp) return;
+    
+    document.getElementById('edit_nombre').value = emp.nombre;
+    document.getElementById('edit_apellido').value = emp.apellido;
+    document.getElementById('edit_dni').value = emp.dni;
+    document.getElementById('edit_telefono').value = emp.telefono;
+    document.getElementById('edit_email').value = emp.email;
+    document.getElementById('edit_direccion').value = emp.direccion;
+    document.getElementById('edit_fecha_ingreso').value = emp.fecha_ingreso;
+    document.getElementById('edit_cbu_cvu').value = emp.cbu_cvu;
+    document.getElementById('edit_activo').checked = emp.activo;
+    
+    document.getElementById('formEditarEmpleado').action = `/gastos/empleados/${empleadoId}/editar/`;
+    
+    new bootstrap.Modal(document.getElementById('modalEditarEmpleado')).show();
+}
+
+function pagarSueldo(empleadoId) {
+    const emp = empleados[empleadoId];
+    if (!emp) return;
+    
+    console.log('Configurando pago de sueldo para empleado:', empleadoId);
+    document.getElementById('tipoPagoTitle').textContent = 'Pagar Sueldo';
+    document.getElementById('tipo_pago').value = 'sueldo';
+    document.getElementById('nombreEmpleadoPago').value = emp.nombre + ' ' + emp.apellido;
+    document.getElementById('formPagarSueldo').action = `/gastos/empleados/${empleadoId}/pagar/`;
+    
+    // Limpiar el formulario
+    document.querySelector('input[name="monto"]').value = '';
+    document.querySelector('textarea[name="descripcion"]').value = '';
+    
+    new bootstrap.Modal(document.getElementById('modalPagarSueldo')).show();
+}
+
+function pagarAguinaldo(empleadoId) {
+    const emp = empleados[empleadoId];
+    if (!emp) return;
+    
+    console.log('Configurando pago de aguinaldo para empleado:', empleadoId);
+    document.getElementById('tipoPagoTitle').textContent = 'Pagar Aguinaldo/Bono';
+    document.getElementById('tipo_pago').value = 'aguinaldo';
+    document.getElementById('nombreEmpleadoPago').value = emp.nombre + ' ' + emp.apellido;
+    document.getElementById('formPagarSueldo').action = `/gastos/empleados/${empleadoId}/pagar/`;
+    
+    // Limpiar el formulario
+    document.querySelector('input[name="monto"]').value = '';
+    document.querySelector('textarea[name="descripcion"]').value = '';
+    
+    new bootstrap.Modal(document.getElementById('modalPagarSueldo')).show();
+}
+
+function toggleActivo(empleadoId) {
+    const emp = empleados[empleadoId];
+    if (!emp) return;
+    
+    const accion = emp.activo ? 'desactivar' : 'activar';
+    if (confirm(`¿Está seguro de que desea ${accion} a ${emp.nombre} ${emp.apellido}?`)) {
+        fetch(`/gastos/empleados/${empleadoId}/toggle/`, {
+            method: 'POST',
+            headers: {
+                'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value,
+                'Content-Type': 'application/json',
+            },
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                location.reload();
+            } else {
+                alert('Error al actualizar el estado del empleado.');
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            alert('Error al actualizar el estado del empleado.');
+        });
+    }
+}
+
+// Event listener para el formulario de pago
+document.addEventListener('DOMContentLoaded', function() {
+    const formPago = document.getElementById('formPagarSueldo');
+    if (formPago) {
+        formPago.addEventListener('submit', function(e) {
+            console.log('Formulario de pago enviado');
+            console.log('Action:', this.action);
+            console.log('Tipo:', document.getElementById('tipo_pago').value);
+            console.log('Monto:', document.querySelector('input[name="monto"]').value);
+        });
+    }
+});
+</script>
+
+{% endblock %}

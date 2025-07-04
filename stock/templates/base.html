@@ -1,0 +1,77 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Huevos Stock</title>
+    <link rel="stylesheet" href="{% static 'bootstrap/css/bootstrap.min.css' %}">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css">
+    <style>
+        body { font-family: Arial, sans-serif; margin: 0; padding: 0; background: #f8f8f8; }
+        header { background: #222; color: #fff; padding: 1em; }
+        nav { margin: 1em 0; }
+        nav a { margin-right: 1.5em; color: #007bff; text-decoration: none; font-weight: bold; }
+        nav a:hover { text-decoration: underline; }
+        main { padding: 2em; }
+    </style>
+</head>
+<body>
+    <header>
+        <h1>Gestión de Stock de Huevos</h1>
+        <nav>
+            <a href="/dashboard/">Dashboard</a>
+            <a href="/ingreso_venta/">Registrar Venta</a>
+            <a href="/gastos_ingreso/">Ingresar Gasto/Desperdicio</a>
+            <a href="/precios_referencia/">Precios de Referencia</a>
+            <a href="/stock_por_categoria/">Stock por Categoría</a>
+            <a href="/ingreso_compra/">Registrar Compra</a>
+            <a href="/reporte_evolucion_precio_cajon/blancos/E/">Evolución Precio Cajón</a>
+            <a href="/adminpanel/">Panel Administración</a>
+        </nav>
+    </header>
+    <main>
+        {% block content %}{% endblock %}
+    </main>
+    <script src="{% static 'bootstrap/js/bootstrap.bundle.min.js' %}"></script>
+    
+    <!-- Script global para formateo de números -->
+    <script>
+    // Función global para formatear números en tiempo real (solo tooltip)
+    window.formatearNumeroInput = function(input) {
+        let valor = input.value; // NO modificar el valor
+        if (valor) {
+            let numero = parseFloat(valor.replace(',', '.'));
+            if (!isNaN(numero)) {
+                // Solo mostrar tooltip, NO cambiar el input
+                let formato = numero.toLocaleString('es-AR', {
+                    minimumFractionDigits: numero >= 1000 ? 0 : 2, 
+                    maximumFractionDigits: 2
+                });
+                input.title = `Valor formateado: ${formato}`;
+            }
+        }
+    };
+    
+    // Auto-aplicar formateo a inputs monetarios
+    document.addEventListener('DOMContentLoaded', function() {
+        const inputsMonetarios = document.querySelectorAll(
+            'input[name*="monto"], input[name*="importe"], input[name*="costo"], input[name*="precio"], input[type="number"]'
+        );
+        
+        inputsMonetarios.forEach(input => {
+            // Solo aplicar a inputs que parecen monetarios
+            if (input.step === '0.01' || input.name.includes('monto') || input.name.includes('precio') || input.name.includes('costo') || input.name.includes('importe')) {
+                input.addEventListener('input', function() {
+                    window.formatearNumeroInput(this);
+                });
+                
+                // Mejorar placeholders
+                if (!input.placeholder) {
+                    input.placeholder = 'Ej: 10.000 o 1.000.000';
+                }
+            }
+        });
+    });
+    </script>
+</body>
+</html>

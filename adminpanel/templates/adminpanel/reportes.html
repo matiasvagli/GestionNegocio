@@ -1,0 +1,120 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-12">
+            <!-- Header con gradiente -->
+            <div class="bg-gradient-success text-white p-4 rounded-3 mb-4 shadow">
+                <div class="row align-items-center">
+                    <div class="col">
+                        <h1 class="mb-0 fw-bold">📈 Reportes de Ganancias</h1>
+                        <p class="mb-0 opacity-75">Análisis financiero y reportes detallados</p>
+                    </div>
+                    <div class="col-auto">
+                        <button class="btn btn-light btn-lg">
+                            <i class="bi bi-download"></i> Exportar PDF
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Filtros de período -->
+            <div class="card mb-4 shadow-sm">
+                <div class="card-body">
+                    <h5 class="card-title">Filtros de Período</h5>
+                    <div class="row g-3">
+                        <div class="col-md-3">
+                            <label class="form-label">Desde:</label>
+                            <input type="date" class="form-control form-control-lg">
+                        </div>
+                        <div class="col-md-3">
+                            <label class="form-label">Hasta:</label>
+                            <input type="date" class="form-control form-control-lg">
+                        </div>
+                        <div class="col-md-3">
+                            <label class="form-label">Período:</label>
+                            <select class="form-select form-select-lg">
+                                <option>Último mes</option>
+                                <option>Últimos 3 meses</option>
+                                <option>Último año</option>
+                                <option>Personalizado</option>
+                            </select>
+                        </div>
+                        <div class="col-md-3 d-flex align-items-end">
+                            <button class="btn btn-primary btn-lg w-100">Generar Reporte</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Métricas principales -->
+            <div class="row mb-4">
+                <div class="col-md-3">
+                    <div class="card text-white bg-primary shadow-sm">
+                        <div class="card-body">
+                            <h5 class="card-title">💰 Ingresos Totales</h5>
+                            <h2 class="mb-0">$0,00</h2>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="card text-white bg-danger shadow-sm">
+                        <div class="card-body">
+                            <h5 class="card-title">💸 Gastos Totales</h5>
+                            <h2 class="mb-0">$0,00</h2>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="card text-white bg-success shadow-sm">
+                        <div class="card-body">
+                            <h5 class="card-title">📊 Ganancia Neta</h5>
+                            <h2 class="mb-0">$0,00</h2>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="card text-white bg-info shadow-sm">
+                        <div class="card-body">
+                            <h5 class="card-title">📈 Margen %</h5>
+                            <h2 class="mb-0">0%</h2>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Gráfico y detalles -->
+            <div class="row">
+                <div class="col-md-8">
+                    <div class="card shadow-sm">
+                        <div class="card-header bg-light">
+                            <h5 class="mb-0">Evolución de Ganancias</h5>
+                        </div>
+                        <div class="card-body">
+                            <div class="alert alert-info">
+                                <strong>Próximamente:</strong> Gráfico interactivo de evolución de ganancias por período.
+                            </div>
+                            <div style="height: 300px; background: #f8f9fa; border-radius: 8px; display: flex; align-items: center; justify-content: center;">
+                                <span class="text-muted">📊 Gráfico de ganancias</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="card shadow-sm">
+                        <div class="card-header bg-light">
+                            <h5 class="mb-0">Resumen por Categoría</h5>
+                        </div>
+                        <div class="card-body">
+                            <div class="alert alert-info">
+                                <strong>Próximamente:</strong> Desglose de ganancias por categoría de productos.
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

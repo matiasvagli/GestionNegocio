@@ -1,0 +1,364 @@
+{% extends 'base.html' %}
+{% load formato_numeros %}
+{% block content %}
+
+<!-- Header con gradiente -->
+<div class="bg-gradient-success text-white p-4 rounded-3 mb-4 shadow">
+    <div class="row align-items-center">
+        <div class="col">
+            <h1 class="mb-0 fw-bold">📈 Reporte de Ganancias</h1>
+            <p class="mb-0 opacity-75">Análisis detallado de rentabilidad del negocio</p>
+        </div>
+        <div class="col-auto">
+            <div class="bg-white bg-opacity-25 rounded-circle p-3">
+                <i class="fas fa-chart-pie fa-2x"></i>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Formulario de filtros mejorado -->
+<div class="card shadow-sm mb-4">
+    <div class="card-header bg-light">
+        <h5 class="mb-0"><i class="fas fa-filter me-2"></i>Filtros de Consulta</h5>
+    </div>
+    <div class="card-body">
+        <form method="get" action="" class="row g-3 align-items-end">
+            <div class="col-md-3">
+                <label for="rango" class="form-label fw-bold">Período:</label>
+                <select name="rango" id="rango" class="form-select" onchange="mostrarCamposRango()">
+                    <option value="dia" {% if rango == 'dia' %}selected{% endif %}>📅 Día</option>
+                    <option value="semana" {% if rango == 'semana' %}selected{% endif %}>📊 Semana</option>
+                    <option value="mes" {% if rango == 'mes' %}selected{% endif %}>📈 Mes</option>
+                </select>
+            </div>
+            
+            <div id="campo_dia" class="col-md-3" style="display:none;">
+                <label for="fecha" class="form-label fw-bold">Fecha:</label>
+                <input type="date" name="fecha" value="{{ fecha|default:'' }}" class="form-control">
+            </div>
+            
+            <div id="campo_semana" class="col-md-6" style="display:none;">
+                <div class="row g-2">
+                    <div class="col">
+                        <label class="form-label fw-bold">Año:</label>
+                        <select name="anio_semana" class="form-select">
+                            {% for y in anios %}<option value="{{ y }}" {% if anio_semana == y %}selected{% endif %}>{{ y }}</option>{% endfor %}
+                        </select>
+                    </div>
+                    <div class="col">
+                        <label class="form-label fw-bold">Semana:</label>
+                        <select name="semana" class="form-select">
+                            {% for w in semanas %}<option value="{{ w }}" {% if semana == w %}selected{% endif %}>Semana {{ w }}</option>{% endfor %}
+                        </select>
+                    </div>
+                </div>
+            </div>
+            
+            <div id="campo_mes" class="col-md-6" style="display:none;">
+                <div class="row g-2">
+                    <div class="col">
+                        <label class="form-label fw-bold">Año:</label>
+                        <select name="anio_mes" class="form-select">
+                            {% for y in anios %}<option value="{{ y }}" {% if anio_mes == y %}selected{% endif %}>{{ y }}</option>{% endfor %}
+                        </select>
+                    </div>
+                    <div class="col">
+                        <label class="form-label fw-bold">Mes:</label>
+                        <select name="mes" class="form-select">
+                            {% for m in meses %}<option value="{{ m.0 }}" {% if mes == m.0 %}selected{% endif %}>{{ m.1 }}</option>{% endfor %}
+                        </select>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="col-md-3">
+                <div class="d-grid gap-2">
+                    <button type="submit" class="btn btn-primary btn-lg">
+                        <i class="fas fa-search me-2"></i>Ver Reporte
+                    </button>
+                    <button type="submit" name="export" value="csv" class="btn btn-success">
+                        <i class="fas fa-download me-2"></i>Exportar CSV
+                    </button>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
+
+<style>
+    .bg-gradient-success {
+        background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
+    }
+    .card-custom-ganancia {
+        transition: all 0.3s ease;
+        border: none;
+        border-radius: 15px;
+        overflow: hidden;
+        position: relative;
+    }
+    .card-custom-ganancia:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 10px 25px rgba(0,0,0,0.08);
+    }
+    .card-icon-ganancia {
+        width: 40px;
+        height: 40px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1rem;
+        color: white;
+        margin: 0 auto 0.5rem auto;
+        box-shadow: 0 3px 6px rgba(0,0,0,0.15);
+    }
+    .ganancia-numero {
+        font-size: 1.4rem;
+        font-weight: bold;
+        background: linear-gradient(45deg, #28a745, #20c997);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+    }
+    .ganancia-otros {
+        background: linear-gradient(45deg, #007bff, #17a2b8);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+    }
+    .ganancia-total {
+        background: linear-gradient(45deg, #ffc107, #fd7e14);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+    }
+    .card-overlay {
+        position: absolute;
+        top: 0;
+        right: 0;
+        background: rgba(255,255,255,0.9);
+        border-radius: 0 15px 0 15px;
+        padding: 0.5rem;
+        font-size: 0.8rem;
+        color: #6c757d;
+    }
+    .table-detalle-custom {
+        background: #fff;
+        border-radius: 15px;
+        overflow: hidden;
+        box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+        border: none;
+    }
+    .table-detalle-custom th {
+        background: linear-gradient(45deg, #007bff, #28a745);
+        color: white;
+        font-weight: bold;
+        text-align: center;
+        padding: 0.75rem;
+        border: none;
+    }
+    .table-detalle-custom td {
+        text-align: center;
+        padding: 0.75rem;
+        border: none;
+        border-bottom: 1px solid rgba(0,0,0,0.05);
+    }
+    @keyframes fadeInUp {
+        from {
+            opacity: 0;
+            transform: translateY(30px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+    .fade-in-up {
+        animation: fadeInUp 0.6s ease-out;
+    }
+</style>
+
+<script>
+function mostrarCamposRango() {
+  var r = document.getElementById('rango').value;
+  document.getElementById('campo_dia').style.display = r === 'dia' ? '' : 'none';
+  document.getElementById('campo_semana').style.display = r === 'semana' ? '' : 'none';
+  document.getElementById('campo_mes').style.display = r === 'mes' ? '' : 'none';
+}
+document.addEventListener('DOMContentLoaded', mostrarCamposRango);
+</script>
+
+<!-- Cards de ganancias mejoradas -->
+<div class="row g-3 fade-in-up">
+    <!-- Ganancias Diarias -->
+    <div class="col-lg-4">
+        <div class="card card-custom-ganancia shadow-lg h-100">
+            <div class="card-overlay">📅 HOY</div>
+            <div class="card-body text-center p-3">
+                <div class="card-icon-ganancia" style="background: linear-gradient(45deg, #28a745, #20c997);">
+                    🥚
+                </div>
+                <h6 class="card-title mb-2">Ganancia Huevos</h6>
+                <p class="ganancia-numero mb-1">{{ ganancia_diaria|formato_dinero }}</p>
+                <small class="text-muted d-block mb-2">Precios de referencia</small>
+                
+                <div class="card-icon-ganancia" style="background: linear-gradient(45deg, #007bff, #17a2b8); width: 30px; height: 30px; font-size: 0.8rem;">
+                    ✅
+                </div>
+                <h6 class="mb-1">Ganancia Otros</h6>
+                <p class="ganancia-numero ganancia-otros mb-1" style="font-size: 1.3rem;">{{ ganancia_otros_diaria|formato_dinero }}</p>
+                <small class="text-muted d-block mb-3">Estimado porcentual</small>
+                
+                <div class="bg-light rounded p-2">
+                    <h6 class="text-success mb-1"><strong>🟢 Total Diario</strong></h6>
+                    <p class="ganancia-numero ganancia-total mb-0" style="font-size: 1.5rem;">{{ total_ganancia_diaria|formato_dinero }}</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Ganancias Semanales -->
+    <div class="col-lg-4">
+        <div class="card card-custom-ganancia shadow-lg h-100">
+            <div class="card-overlay">📊 SEMANA</div>
+            <div class="card-body text-center p-3">
+                <div class="card-icon-ganancia" style="background: linear-gradient(45deg, #17a2b8, #007bff);">
+                    🥚
+                </div>
+                <h6 class="card-title mb-2">Ganancia Huevos</h6>
+                <p class="ganancia-numero mb-1">{{ ganancia_semanal|formato_dinero }}</p>
+                <small class="text-muted d-block mb-2">Precios de referencia</small>
+                
+                <div class="card-icon-ganancia" style="background: linear-gradient(45deg, #ffc107, #fd7e14); width: 30px; height: 30px; font-size: 0.8rem;">
+                    ✅
+                </div>
+                <h6 class="mb-1">Ganancia Otros</h6>
+                <p class="ganancia-numero ganancia-otros mb-1" style="font-size: 1.1rem;">{{ ganancia_otros_semanal|formato_dinero }}</p>
+                <small class="text-muted d-block mb-2">Estimado porcentual</small>
+                
+                <div class="bg-light rounded p-2">
+                    <h6 class="text-info mb-1"><strong>🔵 Total Semanal</strong></h6>
+                    <p class="ganancia-numero ganancia-total mb-0" style="font-size: 1.5rem;">{{ total_ganancia_semanal|formato_dinero }}</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Ganancias Mensuales -->
+    <div class="col-lg-4">
+        <div class="card card-custom-ganancia shadow-lg h-100">
+            <div class="card-overlay">📈 MES</div>
+            <div class="card-body text-center p-3">
+                <div class="card-icon-ganancia" style="background: linear-gradient(45deg, #6f42c1, #e83e8c);">
+                    🥚
+                </div>
+                <h6 class="card-title mb-2">Ganancia Huevos</h6>
+                <p class="ganancia-numero mb-1">{{ ganancia_mensual|formato_dinero }}</p>
+                <small class="text-muted d-block mb-2">Precios de referencia</small>
+
+                <div class="card-icon-ganancia" style="background: linear-gradient(45deg, #20c997, #28a745); width: 30px; height: 30px; font-size: 0.8rem;">
+                    ✅
+                </div>
+                <h6 class="mb-1">Ganancia Otros</h6>
+                <p class="ganancia-numero ganancia-otros mb-1" style="font-size: 1.1rem;">{{ ganancia_otros_mensual|formato_dinero }}</p>
+                <small class="text-muted d-block mb-2">Estimado porcentual</small>
+
+                <div class="bg-light rounded p-2">
+                    <h6 class="text-warning mb-1"><strong>🔵 Total Mensual</strong></h6>
+                    <p class="ganancia-numero ganancia-total mb-0" style="font-size: 1.5rem;">{{ total_ganancia_mensual|formato_dinero }}</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Row adicional para gastos y resultado -->
+<div class="row g-3 mt-1 fade-in-up">
+    <div class="col-lg-6">
+        <div class="card card-custom-ganancia shadow-lg">
+            <div class="card-body text-center p-3">
+                <div class="card-icon-ganancia" style="background: linear-gradient(45deg, #dc3545, #e83e8c);">
+                    💸
+                </div>
+                <h6 class="card-title mb-2">Gasto Mensual</h6>
+                <p class="ganancia-numero text-danger mb-1">{{ gasto_mensual|formato_dinero }}</p>
+                <small class="text-muted">Suma de todos los egresos del mes</small>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-lg-6">
+        <div class="card card-custom-ganancia shadow-lg">
+            <div class="card-body text-center p-3">
+                <div class="card-icon-ganancia" style="background: linear-gradient(45deg, #28a745, #20c997);">
+                    📅
+                </div>
+                <h6 class="card-title mb-2">Resultado del Mes</h6>
+                <p class="ganancia-numero {% if resultado_mes >= 0 %}text-success{% else %}text-danger{% endif %} mb-1">
+                    {{ resultado_mes|formato_dinero }}
+                </p>
+                <small class="text-muted">Ganancia neta del mes en curso</small>
+            </div>
+        </div>
+    </div>
+</div>
+
+{# Tabla de detalle de ganancias del rango seleccionado (si existe) #}
+{% if rango and ganancia_huevos is not None and ganancia_otros is not None and total_ganancia is not None and fecha_inicio and fecha_fin %}
+<div class="mt-4 fade-in-up">
+    <div class="card shadow-lg">
+        <div class="card-header bg-gradient-primary text-white">
+            <h5 class="mb-0 text-center">
+                <i class="fas fa-chart-bar me-2"></i>
+                Detalle del Período Seleccionado: {{ rango|title }}
+            </h5>
+        </div>
+        <div class="card-body p-0">
+            <table class="table table-detalle-custom mb-0">
+                <thead>
+                    <tr>
+                        <th><i class="fas fa-calendar me-2"></i>Rango</th>
+                        <th><i class="fas fa-play me-2"></i>Desde</th>
+                        <th><i class="fas fa-stop me-2"></i>Hasta</th>
+                        <th><i class="fas fa-egg me-2"></i>Ganancia Huevos</th>
+                        <th><i class="fas fa-plus-circle me-2"></i>Ganancia Otros</th>
+                        <th><i class="fas fa-file-invoice-dollar me-2"></i>Gastos Generales</th>
+                        <th><i class="fas fa-trash-alt me-2"></i>Gastos Desperdicios</th>
+                        <th><i class="fas fa-piggy-bank me-2"></i>Total Gastos</th>
+                        <th><i class="fas fa-wallet me-2"></i>Ganancia Neta</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><span class="badge bg-primary">{{ rango|title }}</span></td>
+                        <td><strong>{{ fecha_inicio|date:'d/m/Y' }}</strong></td>
+                        <td><strong>{{ fecha_fin|date:'d/m/Y' }}</strong></td>
+                        <td><span class="text-success fw-bold">{{ ganancia_huevos|formato_dinero }}</span></td>
+                        <td><span class="text-info fw-bold">{{ ganancia_otros|formato_dinero }}</span></td>
+                        <td><span class="text-warning fw-bold"><i class="fas fa-receipt me-1"></i>{{ gastos_generales|formato_dinero }}</span></td>
+                        <td><span class="text-muted fw-bold"><i class="fas fa-trash-alt me-1"></i>{{ gastos_desperdicios|formato_dinero }}</span></td>
+                        <td><span class="badge bg-danger p-2"><i class="fas fa-file-invoice-dollar me-1"></i>{{ gastos_rango|formato_dinero }}</span></td>
+                        <td><span class="badge bg-gradient-success p-2"><i class="fas fa-coins me-1"></i>{{ ganancia_neta|formato_dinero }}</span></td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endif %}
+
+<style>
+    .bg-gradient-primary {
+        background: linear-gradient(135deg, #007bff 0%, #0056b3 100%);
+    }
+    .bg-gradient-success {
+        background: linear-gradient(135deg, #28a745 0%, #20c997 100%) !important;
+    }
+    .bg-gradient-info {
+        background: linear-gradient(135deg, #17a2b8 0%, #0097a7 100%) !important;
+    }
+</style>
+
+{% endblock %}
+

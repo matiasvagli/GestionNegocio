@@ -1,0 +1,44 @@
+{% extends 'base.html' %}
+{% load formato_numeros %}
+{% block content %}
+<h2 style="margin-bottom: 1.5em;">Stock agrupado por categoría y subcategoría</h2>
+<p style="font-size:1.2em; font-weight:bold; color:#007bff; margin-bottom:1em;">Total de cajones en stock: {{ total_cajones|formato_numero }}</p>
+<div style="overflow-x:auto;">
+<table style="width:100%; border-collapse:collapse; background:#fff; box-shadow:0 2px 8px #0001;">
+    <thead style="background:#007bff; color:#fff;">
+        <tr>
+            <th style="padding:10px;">Categoría</th>
+            <th style="padding:10px;">Subcategoría</th>
+            <th style="padding:10px;">Stock (Maples)</th>
+            <th style="padding:10px;">Stock (Cajones)</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for grupo in stock_agrupado %}
+        <tr style="text-align:center; border-bottom:1px solid #eee;">
+            <td style="padding:8px;">{{ grupo.categoria|title }}</td>
+            <td style="padding:8px;">{{ grupo.subcategoria }}</td>
+            <td class="stock-maples">{{ grupo.stock_maples|formato_numero }}</td>
+            <td class="stock-cajones">{{ grupo.stock_cajones|formato_numero }}</td>
+        </tr>
+        {% empty %}
+        <tr><td colspan="4" style="padding:15px; color:#888;">No hay stock registrado.</td></tr>
+        {% endfor %}
+    </tbody>
+</table>
+</div>
+<style>
+.stock-maples {
+    padding:8px; font-weight:bold;
+    color: #28a745;
+}
+.stock-cajones {
+    padding:8px; font-weight:bold;
+    color: #28a745;
+}
+.stock-maples:empty, .stock-cajones:empty,
+.stock-maples:contains('0'), .stock-cajones:contains('0') {
+    color: #dc3545;
+}
+</style>
+{% endblock %}

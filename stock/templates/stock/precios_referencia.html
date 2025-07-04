@@ -1,0 +1,132 @@
+{% extends 'base.html' %}
+{% load formato_numeros %}
+{% block content %}
+<h2 style="text-align:center; color:#007bff; margin-bottom:0.2em;">Precios de Referencia</h2>
+<div style="text-align:right; max-width:1200px; margin:auto; margin-bottom:1em;">
+    <button onclick="window.print()" class="btn btn-outline-secondary" style="font-size:1.1em;">
+        🖨️ Imprimir / Descargar
+    </button>
+    <a href="{% url 'precios_referencia_editar' %}" class="btn btn-primary" style="font-size:1.1em; margin-left:1em;">
+        ✏️ Editar Precios
+    </a>
+</div>
+<div id="tabla-blancos">
+    <h2 style="text-align:center; color:#007bff;">Huevos Blancos</h2>
+    <div style="overflow-x:auto; max-width:900px; margin:auto;">
+      <table class="table table-striped table-bordered align-middle precios-ref-table" style="background:#fff; width:100%; border-radius:10px; border-collapse:separate; border-spacing:0;">
+        <thead class="table-primary">
+          <tr style="text-align:center;">
+            <th style="padding: 1em;">Subcategoría</th>
+            <th style="padding: 1em;">Peso </th>
+            <th style="padding: 1em;">Precio Compra</th>
+            <th style="padding: 1em;">P.Cajón</th>
+            <th style="padding: 1em;">P.Medio Cajón</th>
+            <th style="padding: 1em;">P.3Maples</th>
+            <th style="padding: 1em;">P.Maple</th>
+            <th style="padding: 1em;">Activo</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for p in productos_blancos %}
+          <tr style="text-align:center;">
+            <td style="padding: 0.7em 1em;">{{ p.get_subcategoria_display }}</td>
+            <td style="padding: 0.7em 1em;">{{ p.peso|default_if_none:'-' }}</td>
+            <td style="padding: 0.7em 1em;">{{ p.precio_compra|formato_dinero|default_if_none:'-' }}</td>
+            <td style="padding: 0.7em 1em;">{{ p.precio_tentativo_cajon|formato_dinero|default_if_none:'-' }}</td>
+            <td style="padding: 0.7em 1em;">{{ p.precio_tentativo_medio_cajon|formato_dinero|default_if_none:'-' }}</td>
+            <td style="padding: 0.7em 1em;">{{ p.precio_tentativo_3maples|formato_dinero|default_if_none:'-' }}</td>
+            <td style="padding: 0.7em 1em;">{{ p.precio_tentativo_maple|formato_dinero|default_if_none:'-' }}</td>
+            <td style="padding: 0.7em 1em;">{% if p.activo %}<span style="color:green; font-size:1.3em;">✔</span>{% else %}<span style="color:#b00; font-size:1.3em;">✖</span>{% endif %}</td>
+          </tr>
+          {% empty %}
+          <tr><td colspan="8" style="text-align:center; padding:1.5em;">No hay productos cargados.</td></tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+</div>
+<div id="tabla-color" style="page-break-before: always;">
+    <h2 style="text-align:center; color:#ff9800;">Huevos Color</h2>
+    <div style="overflow-x:auto; max-width:900px; margin:auto;">
+      <table class="table table-striped table-bordered align-middle precios-ref-table" style="background:#fff; width:100%; border-radius:10px; border-collapse:separate; border-spacing:0;">
+        <thead class="table-warning">
+          <tr style="text-align:center;">
+            <th style="padding: 1em;">Subcategoría</th>
+            <th style="padding: 1em;">Peso </th>
+            <th style="padding: 1em;">Precio Compra</th>
+            <th style="padding: 1em;">P.Cajón</th>
+            <th style="padding: 1em;">P.Medio Cajón</th>
+            <th style="padding: 1em;">P.3Maples</th>
+            <th style="padding: 1em;">P.Maple</th>
+            <th style="padding: 1em;">Activo</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for p in productos_color %}
+          <tr style="text-align:center;">
+            <td style="padding: 0.7em 1em;">{{ p.get_subcategoria_display }}</td>
+            <td style="padding: 0.7em 1em;">{{ p.peso|default_if_none:'-' }}</td>
+            <td style="padding: 0.7em 1em;">{{ p.precio_compra|formato_dinero|default_if_none:'-' }}</td>
+            <td style="padding: 0.7em 1em;">{{ p.precio_tentativo_cajon|formato_dinero|default_if_none:'-' }}</td>
+            <td style="padding: 0.7em 1em;">{{ p.precio_tentativo_medio_cajon|formato_dinero|default_if_none:'-' }}</td>
+            <td style="padding: 0.7em 1em;">{{ p.precio_tentativo_3maples|formato_dinero|default_if_none:'-' }}</td>
+            <td style="padding: 0.7em 1em;">{{ p.precio_tentativo_maple|formato_dinero|default_if_none:'-' }}</td>
+            <td style="padding: 0.7em 1em;">{% if p.activo %}<span style="color:green; font-size:1.3em;">✔</span>{% else %}<span style="color:#b00; font-size:1.3em;">✖</span>{% endif %}</td>
+          </tr>
+          {% empty %}
+          <tr><td colspan="8" style="text-align:center; padding:1.5em;">No hay productos cargados.</td></tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+</div>
+
+    </div>
+</div>
+<style>
+@media print {
+    body, html {
+        background: #fff !important;
+        margin: 0;
+        padding: 0;
+    }
+    .btn, .btn-outline-secondary, nav, header, .admin-link, .navbar, .sidebar, .alert, .pagination {
+        display: none !important;
+    }
+    #tabla-blancos, #tabla-color, #tabla-otros {
+        width: 100% !important;
+        margin: 0 auto 1.5em auto !important;
+        page-break-inside: avoid;
+    }
+    #tabla-color {
+        page-break-before: always;
+    }
+    .precios-ref-table {
+        font-size: 1.2em;
+        color: #111;
+        background: #fff !important;
+        box-shadow: none !important;
+        border: 1px solid #222 !important;
+        width: 100% !important;
+        margin-bottom: 1.5em;
+    }
+    .precios-ref-table th, .precios-ref-table td {
+        border: 1px solid #222 !important;
+        padding: 0.5em 0.7em !important;
+        background: #fff !important;
+        color: #111 !important;
+    }
+    h2 {
+        color: #000 !important;
+        text-align: center;
+        margin-top: 0.5em;
+        margin-bottom: 0.5em;
+        font-size: 2em !important;
+    }
+    .table-primary, .table-warning, .table-secondary {
+        background: #eee !important;
+        color: #000 !important;
+    }
+}
+</style>
+{% endblock %}

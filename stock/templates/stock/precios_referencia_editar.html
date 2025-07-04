@@ -1,0 +1,81 @@
+{% extends 'base.html' %}
+{% block content %}
+<h2 style="text-align:center; color:#007bff; margin-bottom:0.2em;">Editar Precios de Referencia</h2>
+<form method="post">
+    {% csrf_token %}
+    <div id="tabla-blancos">
+        <h3 style="text-align:center; color:#007bff;">Huevos Blancos</h3>
+        <div style="overflow-x:auto; max-width:900px; margin:auto;">
+          <table class="table table-striped table-bordered align-middle precios-ref-table" style="background:#fff; width:100%; border-radius:10px; border-collapse:separate; border-spacing:0;">
+            <thead class="table-primary">
+              <tr style="text-align:center;">
+                <th>Subcategoría</th>
+                <th>Peso ()</th>
+                <th>Precio Compra</th>
+                <th>P.Cajón</th>
+                <th>P.Medio Cajón</th>
+                <th>P.3Maples</th>
+                <th>P.Maple</th>
+                <th>Activo</th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for form in forms_list %}
+                {% if form.instance.categoria == 'blancos' %}
+                <tr style="text-align:center;">
+                  <td>{{ form.instance.get_subcategoria_display }}</td>
+                  <td>{{ form.peso }}</td>
+                  <td>{{ form.precio_compra }}</td>
+                  <td>{{ form.precio_tentativo_cajon }}</td>
+                  <td>{{ form.precio_tentativo_medio_cajon }}</td>
+                  <td>{{ form.precio_tentativo_3maples }}</td>
+                  <td>{{ form.precio_tentativo_maple }}</td>
+                  <td>{{ form.activo }}</td>
+                </tr>
+                {% endif %}
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+    </div>
+    <div id="tabla-color" style="margin-top:2em;">
+        <h3 style="text-align:center; color:#ff9800;">Huevos Color</h3>
+        <div style="overflow-x:auto; max-width:900px; margin:auto;">
+          <table class="table table-striped table-bordered align-middle precios-ref-table" style="background:#fff; width:100%; border-radius:10px; border-collapse:separate; border-spacing:0;">
+            <thead class="table-warning">
+              <tr style="text-align:center;">
+                <th>Subcategoría</th>
+                <th>Peso ()</th>
+                <th>Precio Compra</th>
+                <th>P.Cajón</th>
+                <th>P.Medio Cajón</th>
+                <th>P.3Maples</th>
+                <th>P.Maple</th>
+                <th>Activo</th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for form in forms_list %}
+                {% if form.instance.categoria == 'color' %}
+                <tr style="text-align:center;">
+                  <td>{{ form.instance.get_subcategoria_display }}</td>
+                  <td>{{ form.peso }}</td>
+                  <td>{{ form.precio_compra }}</td>
+                  <td>{{ form.precio_tentativo_cajon }}</td>
+                  <td>{{ form.precio_tentativo_medio_cajon }}</td>
+                  <td>{{ form.precio_tentativo_3maples }}</td>
+                  <td>{{ form.precio_tentativo_maple }}</td>
+                  <td>{{ form.activo }}</td>
+                </tr>
+                {% endif %}
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+    </div>
+    <div style="text-align:center; margin-top:1.5em;">
+        <button type="submit" class="btn btn-success btn-lg">Guardar Cambios</button>
+        <a href="{% url 'precios_referencia' %}" class="btn btn-secondary btn-lg">Cancelar</a>
+    </div>
+</form>
+{% endblock %}

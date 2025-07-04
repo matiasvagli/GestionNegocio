@@ -1,0 +1,58 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-12">
+            <!-- Header con gradiente -->
+            <div class="bg-gradient-primary text-white p-4 rounded-3 mb-4 shadow">
+                <div class="row align-items-center">
+                    <div class="col">
+                        <h1 class="mb-0 fw-bold">👥 Gestión de Empleados</h1>
+                        <p class="mb-0 opacity-75">Administra empleados, pagos de sueldos y aguinaldos</p>
+                    </div>
+                    <div class="col-auto">
+                        <button class="btn btn-light btn-lg" data-bs-toggle="modal" data-bs-target="#modalNuevoEmpleado">
+                            <i class="bi bi-person-plus"></i> Nuevo Empleado
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Búsqueda y filtros -->
+            <div class="card mb-4 shadow-sm">
+                <div class="card-body">
+                    <div class="row g-3">
+                        <div class="col-md-6">
+                            <input type="text" class="form-control form-control-lg" placeholder="🔍 Buscar empleado por nombre...">
+                        </div>
+                        <div class="col-md-3">
+                            <select class="form-select form-select-lg">
+                                <option>Todos los estados</option>
+                                <option>Activos</option>
+                                <option>Inactivos</option>
+                            </select>
+                        </div>
+                        <div class="col-md-3">
+                            <button class="btn btn-success btn-lg w-100">Buscar</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Lista de empleados -->
+            <div class="card shadow-sm">
+                <div class="card-header bg-light">
+                    <h5 class="mb-0">Lista de Empleados</h5>
+                </div>
+                <div class="card-body">
+                    <p class="text-muted">Esta sección se conectará con la gestión real de empleados.</p>
+                    <div class="alert alert-info">
+                        <strong>Próximamente:</strong> Aquí verás la lista completa de empleados con opciones para pagar sueldos, aguinaldos y gestionar su información.
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

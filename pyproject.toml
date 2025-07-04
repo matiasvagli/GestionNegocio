@@ -1,0 +1,7 @@
+[tool.black]
+line-length = 100
+exclude = '(env|migrations|adminpanel/templates)'
+
+[tool.isort]
+profile = "black"
+skip = ["env", "env/*", "*/migrations/*", "adminpanel/templates"]

@@ -1,0 +1,50 @@
+{% extends 'base.html' %}
+{% load formato_numeros %}
+{% block content %}
+<h2 style="text-align:center; color:#007bff; margin-bottom:1em;">Evolución de Precio de Cajón</h2>
+<div style="max-width:1200px; margin:auto;">
+  <form method="get" action="" style="margin-bottom:2em; display:flex; gap:1em; justify-content:center; align-items:center; flex-wrap:wrap;">
+    <label for="agrupamiento">Agrupar por:</label>
+    <select name="agrupamiento" id="agrupamiento" class="form-select" style="width:auto; display:inline-block;">
+      <option value="dia" {% if agrupamiento == 'dia' %}selected{% endif %}>Día</option>
+      <option value="semana" {% if agrupamiento == 'semana' %}selected{% endif %}>Semana (máx. 12)</option>
+      <option value="mes" {% if agrupamiento == 'mes' %}selected{% endif %}>Mes</option>
+    </select>
+    <button type="submit" class="btn btn-primary">Ver</button>
+  </form>
+  <div style="text-align:right; max-width:1200px; margin:auto; margin-bottom:1em;">
+    <a href="?agrupamiento={{ agrupamiento }}&export=excel" class="btn btn-outline-success" style="font-size:1.1em;">
+      ⬇️ Exportar a Excel
+    </a>
+  </div>
+  {% for categoria, filas in tablas.items %}
+    {% if categoria == 'blancos' %}
+      <h3 style="text-align:center; color:#007bff; margin-top:2em;">Huevos Blancos</h3>
+    {% else %}
+      <h3 style="text-align:center; color:#ff9800; margin-top:2em;">Huevos Color</h3>
+    {% endif %}
+    <div style="overflow-x:auto; max-width:1000px; margin:auto;">
+      <table class="table table-striped table-bordered align-middle precios-ref-table" style="background:#fff; width:100%; border-radius:10px; border-collapse:separate; border-spacing:0;">
+        <thead class="{% if categoria == 'blancos' %}table-primary{% else %}table-warning{% endif %}">
+          <tr style="text-align:center;">
+            <th style="padding: 1em;">Subcategoría</th>
+            {% for fecha in fechas %}
+              <th style="padding: 1em;">{{ fecha|date:'d/m/Y' }}</th>
+            {% endfor %}
+          </tr>
+        </thead>
+        <tbody>
+          {% for fila in filas %}
+          <tr style="text-align:center;">
+            <td style="padding: 0.7em 1em;">{{ fila.subcategoria }}</td>
+            {% for precio in fila.precios %}
+              <td style="padding: 0.7em 1em;">{% if precio %}{{ precio|formato_dinero }}{% else %}-{% endif %}</td>
+            {% endfor %}
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  {% endfor %}
+</div>
+{% endblock %}

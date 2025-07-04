@@ -1,0 +1,127 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="container">
+    <div class="row justify-content-center">
+        <div class="col-md-10">
+            <!-- Header del Dashboard -->
+            <div class="bg-gradient-primary text-white p-4 rounded-3 mb-4 shadow">
+                <div class="row align-items-center">
+                    <div class="col">
+                        <h1 class="mb-0 fw-bold">
+                            <i class="fas fa-tachometer-alt"></i> Panel de Administración
+                        </h1>
+                        <p class="mb-0 opacity-75">Gestión centralizada del sistema</p>
+                    </div>
+                    <div class="col-auto">
+                        <a href="/logout/" class="btn btn-light btn-lg">
+                            <i class="fas fa-sign-out-alt"></i> Cerrar Sesión
+                        </a>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Cards de Accesos Principales -->
+            <div class="row g-4 mb-4">
+                <div class="col-md-4">
+                    <div class="card h-100 shadow-sm border-0 hover-card">
+                        <div class="card-body text-center p-4">
+                            <div class="text-primary mb-3">
+                                <i class="fas fa-users fa-3x"></i>
+                            </div>
+                            <h5 class="card-title">Gestión de Empleados</h5>
+                            <p class="card-text text-muted">Administra empleados, sueldos y aguinaldos</p>
+                            <a href="/gastos/empleados/" class="btn btn-primary btn-lg w-100">
+                                <i class="fas fa-arrow-right"></i> Acceder
+                            </a>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="col-md-4">
+                    <div class="card h-100 shadow-sm border-0 hover-card">
+                        <div class="card-body text-center p-4">
+                            <div class="text-success mb-3">
+                                <i class="fas fa-chart-line fa-3x"></i>
+                            </div>
+                            <h5 class="card-title">Reportes de Ganancias</h5>
+                            <p class="card-text text-muted">Análisis financiero y reportes detallados</p>
+                            <a href="/reporte_ganancias/" class="btn btn-success btn-lg w-100">
+                                <i class="fas fa-arrow-right"></i> Acceder
+                            </a>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="col-md-4">
+                    <div class="card h-100 shadow-sm border-0 hover-card">
+                        <div class="card-body text-center p-4">
+                            <div class="text-secondary mb-3">
+                                <i class="fas fa-cogs fa-3x"></i>
+                            </div>
+                            <h5 class="card-title">Django Admin</h5>
+                            <p class="card-text text-muted">Administración avanzada del sistema</p>
+                            <a href="/admin/" class="btn btn-secondary btn-lg w-100">
+                                <i class="fas fa-external-link-alt"></i> Acceder
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Resumen Rápido -->
+            <div class="card shadow-sm">
+                <div class="card-header bg-light">
+                    <h5 class="mb-0">
+                        <i class="fas fa-info-circle"></i> Resumen del Sistema
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <div class="row text-center">
+                        <div class="col-md-3">
+                            <div class="p-3">
+                                <h4 class="text-primary">📊</h4>
+                                <h6>Estado del Sistema</h6>
+                                <span class="badge bg-success">Operativo</span>
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="p-3">
+                                <h4 class="text-info">👥</h4>
+                                <h6>Empleados Activos</h6>
+                                <span class="badge bg-info">-</span>
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="p-3">
+                                <h4 class="text-warning">📈</h4>
+                                <h6>Ventas del Mes</h6>
+                                <span class="badge bg-warning">-</span>
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="p-3">
+                                <h4 class="text-success">💰</h4>
+                                <h6>Ganancia del Mes</h6>
+                                <span class="badge bg-success">-</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    .hover-card {
+        transition: transform 0.2s;
+    }
+    .hover-card:hover {
+        transform: translateY(-5px);
+    }
+    .bg-gradient-primary {
+        background: linear-gradient(135deg, #007bff 0%, #0056b3 100%);
+    }
+</style>
+{% endblock %}

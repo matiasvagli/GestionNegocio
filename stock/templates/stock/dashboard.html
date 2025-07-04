@@ -1,0 +1,297 @@
+{% extends 'base.html' %}
+{% load formato_numeros %}
+{% block content %}
+
+{% if mensaje %}
+    <div class="alert alert-success alert-dismissible fade show" role="alert">
+        <i class="fas fa-check-circle me-2"></i>{{ mensaje }}
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    </div>
+{% endif %}
+
+<!-- Header con gradiente -->
+<div class="bg-gradient-primary text-white p-4 rounded-3 mb-4 shadow">
+    <div class="row align-items-center">
+        <div class="col">
+            <h1 class="mb-0 fw-bold">📊 Panel de Control - Huevos</h1>
+            <p class="mb-0 opacity-75">Gestión integral de stock y ventas</p>
+        </div>
+        <div class="col-auto">
+            <div class="bg-white bg-opacity-25 rounded-circle p-3">
+                <i class="fas fa-chart-line fa-2x"></i>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    .bg-gradient-primary {
+        background: linear-gradient(135deg, #007bff 0%, #0056b3 100%);
+    }
+    .card-custom {
+        transition: all 0.3s ease;
+        border: none;
+        border-radius: 15px;
+        overflow: hidden;
+    }
+    .card-custom:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 15px 35px rgba(0,123,255,0.1);
+    }
+    .card-icon {
+        width: 60px;
+        height: 60px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.5rem;
+        color: white;
+        margin-bottom: 1rem;
+    }
+    .card-icon.bg-success { background: linear-gradient(45deg, #28a745, #20c997); }
+    .card-icon.bg-info { background: linear-gradient(45deg, #17a2b8, #007bff); }
+    .card-icon.bg-warning { background: linear-gradient(45deg, #ffc107, #fd7e14); }
+    .card-icon.bg-danger { background: linear-gradient(45deg, #dc3545, #e83e8c); }
+    .card-icon.bg-primary { background: linear-gradient(45deg, #007bff, #6f42c1); }
+    .card-icon.bg-secondary { background: linear-gradient(45deg, #6c757d, #495057); }
+    
+    .valor-destacado {
+        font-size: 2rem;
+        font-weight: bold;
+        background: linear-gradient(45deg, #007bff, #28a745);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+    }
+    .lista-valores {
+        list-style: none;
+        padding: 0;
+    }
+    .lista-valores li {
+        padding: 0.5rem 0;
+        border-bottom: 1px solid rgba(0,0,0,0.05);
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+    .lista-valores li:last-child {
+        border-bottom: none;
+    }
+    .badge-custom {
+        font-size: 1rem;
+        padding: 0.5rem 1rem;
+    }
+    
+    /* Animaciones para alertas */
+    @keyframes pulse {
+        0% { transform: scale(1); }
+        50% { transform: scale(1.05); }
+        100% { transform: scale(1); }
+    }
+    
+    @keyframes shake {
+        0%, 100% { transform: translateX(0); }
+        10%, 30%, 50%, 70%, 90% { transform: translateX(-5px); }
+        20%, 40%, 60%, 80% { transform: translateX(5px); }
+    }
+    
+    @keyframes glow {
+        0% { box-shadow: 0 0 5px rgba(220, 53, 69, 0.5); }
+        50% { box-shadow: 0 0 20px rgba(220, 53, 69, 0.8), 0 0 30px rgba(220, 53, 69, 0.6); }
+        100% { box-shadow: 0 0 5px rgba(220, 53, 69, 0.5); }
+    }
+    
+    .card-alerta-critica {
+        animation: pulse 2s infinite, glow 3s infinite;
+        border: 2px solid #dc3545 !important;
+    }
+    
+    .card-alerta-media {
+        animation: pulse 3s infinite;
+        border: 2px solid #ffc107 !important;
+    }
+    
+    .icon-shake {
+        animation: shake 1s infinite;
+    }
+    
+    .alert-titila {
+        animation: pulse 1.5s infinite;
+    }
+</style>
+
+<div class="row g-4">
+    <!-- Stock Actual -->
+    <div class="col-lg-6 col-xl-4">
+        <div class="card card-custom h-100 shadow-sm">
+            <div class="card-body">
+                <div class="card-icon bg-success mx-auto">
+                    🥚
+                </div>
+                <h5 class="card-title text-center mb-3">Stock Actual</h5>
+                <ul class="lista-valores">
+                    <li>
+                        <span>Docenas:</span>
+                        <span class="badge bg-success badge-custom">{{ stock_docenas|formato_numero }}</span>
+                    </li>
+                    <li>
+                        <span>Maples:</span>
+                        <span class="badge bg-info badge-custom">{{ stock_maples|formato_numero }}</span>
+                    </li>
+                    <li>
+                        <span>Cajones:</span>
+                        <span class="badge bg-warning badge-custom">{{ stock_cajones|formato_numero }}</span>
+                    </li>
+                    <li>
+                        <span>Unidades:</span>
+                        <span class="badge bg-primary badge-custom">{{ stock_unidades|formato_numero }}</span>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </div>
+
+    <!-- Vendido por unidad -->
+    <div class="col-lg-6 col-xl-4">
+        <div class="card card-custom h-100 shadow-sm">
+            <div class="card-body">
+                <div class="card-icon bg-info mx-auto">
+                    📦
+                </div>
+                <h5 class="card-title text-center mb-3">Vendido por Unidad Semanal</h5>
+                <ul class="lista-valores">
+                    <li>
+                        <span>Docenas:</span>
+                        <span class="badge bg-success badge-custom">{{ vendido_por_unidad.docena }}</span>
+                    </li>
+                    <li>
+                        <span>Maples:</span>
+                        <span class="badge bg-info badge-custom">{{ vendido_por_unidad.maple }}</span>
+                    </li>
+                    <li>
+                        <span>Cajones:</span>
+                        <span class="badge bg-warning badge-custom">{{ vendido_por_unidad.cajon }}</span>
+                    </li>
+                    <li>
+                        <span>Unidades:</span>
+                        <span class="badge bg-primary badge-custom">{{ vendido_por_unidad.unidad }}</span>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </div>
+
+    <!-- Valor del Stock -->
+    <div class="col-lg-6 col-xl-4">
+        <div class="card card-custom h-100 shadow-sm">
+            <div class="card-body text-center">
+                <div class="card-icon bg-warning mx-auto">
+                    💰
+                </div>
+                <h5 class="card-title mb-3">Valor Del Stock</h5>
+                {% if valor_stock %}
+                    <p class="valor-destacado mb-0">{{ valor_stock|formato_dinero }}</p>
+                {% else %}
+                    <p class="text-danger fs-5 mb-0">No hay stock o datos de compra registrados.</p>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+
+    <!-- Valor Vendido Semanal -->
+    <div class="col-lg-6 col-xl-4">
+        <div class="card card-custom h-100 shadow-sm">
+            <div class="card-body text-center">
+                <div class="card-icon bg-primary mx-auto">
+                    📅
+                </div>
+                <h5 class="card-title mb-3">Valor Vendido Semanal</h5>
+                <p class="valor-destacado mb-0">{{ valor_vendido_semana|formato_dinero }}</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Valor Vendido Hoy -->
+    <div class="col-lg-6 col-xl-4">
+        <div class="card card-custom h-100 shadow-sm">
+            <div class="card-body text-center">
+                <div class="card-icon bg-success mx-auto">
+                    ✅
+                </div>
+                <h5 class="card-title mb-3">Valor Vendido Hoy</h5>
+                <p class="valor-destacado mb-0">{{ valor_vendido_hoy|formato_dinero }}</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Alerta Stock -->
+    <div class="col-lg-6 col-xl-4">
+        <div class="card card-custom h-100 shadow-sm {% if alerta_bajo_stock %}{% for mensaje in alerta_bajo_stock %}{% if 'Sin stock' in mensaje %}card-alerta-critica{% else %}card-alerta-media{% endif %}{% endfor %}{% endif %}">
+            <div class="card-body">
+                <div class="card-icon bg-danger mx-auto {% if alerta_bajo_stock %}icon-shake{% endif %}">
+                    ⚠️
+                </div>
+                <h5 class="card-title text-center mb-3 {% if alerta_bajo_stock %}text-danger fw-bold{% endif %}">
+                    {% if alerta_bajo_stock %}🚨 ALERTA STOCK 🚨{% else %}Alerta Stock{% endif %}
+                </h5>
+                {% if alerta_bajo_stock %}
+                    <div class="text-center">
+                        {% for mensaje in alerta_bajo_stock %}
+                            {% if 'Sin stock' in mensaje %}
+                                <div class="alert alert-danger py-2 mb-2 alert-titila">
+                                    <i class="fas fa-exclamation-triangle me-2"></i>
+                                    <strong>🔴 {{ mensaje }}</strong>
+                                </div>
+                            {% else %}
+                                <div class="alert alert-warning py-2 mb-2 alert-titila">
+                                    <i class="fas fa-exclamation-circle me-2"></i>
+                                    <strong>🟡 {{ mensaje }}</strong>
+                                </div>
+                            {% endif %}
+                        {% endfor %}
+                        {% if alerta_bajo_stock %}
+                        <script>
+                            // Reproducir beep de alerta cuando hay stock bajo
+                            document.addEventListener('DOMContentLoaded', function() {
+                                function playAlertBeep() {
+                                    try {
+                                        const audioContext = new (window.AudioContext || window.webkitAudioContext)();
+                                        const oscillator = audioContext.createOscillator();
+                                        const gainNode = audioContext.createGain();
+                                        
+                                        oscillator.connect(gainNode);
+                                        gainNode.connect(audioContext.destination);
+                                        
+                                        oscillator.frequency.value = 800;
+                                        oscillator.type = 'sine';
+                                        
+                                        gainNode.gain.setValueAtTime(0.1, audioContext.currentTime);
+                                        gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.5);
+                                        
+                                        oscillator.start(audioContext.currentTime);
+                                        oscillator.stop(audioContext.currentTime + 0.5);
+                                    } catch(e) {
+                                        console.log('Audio de alerta no disponible');
+                                    }
+                                }
+                                
+                                // Reproducir después de 1 segundo
+                                setTimeout(playAlertBeep, 1000);
+                            });
+                        </script>
+                        {% endif %}
+                    </div>
+                {% else %}
+                    <div class="alert alert-success text-center mb-0">
+                        <i class="fas fa-check-circle me-2"></i>Stock suficiente en todas las categorías 👍
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+
+{% endblock %}
+
+

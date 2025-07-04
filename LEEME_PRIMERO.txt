@@ -1,0 +1,49 @@
+═══════════════════════════════════════════════════════════════
+   SISTEMA DE GESTIÓN DE STOCK - HUEVOS 🥚
+   INSTRUCCIONES RÁPIDAS
+═══════════════════════════════════════════════════════════════
+
+🚀 PRIMERA VEZ (INSTALACIÓN COMPLETA):
+   
+   1. Haz clic derecho en "instalar_completo.bat"
+   2. Selecciona "Ejecutar como administrador"
+   3. Espera a que termine (puede tardar varios minutos)
+   4. Si aparece Windows Defender, permite la ejecución
+   5. Reinicia el CMD
+   6. Ejecuta "iniciar.bat"
+
+📱 USO DIARIO:
+   
+   1. Doble clic en "iniciar.bat"
+   2. Se abrirá automáticamente en tu navegador
+   3. Para cerrar: Ctrl+C en la ventana negra
+
+🔧 SI YA TIENES PYTHON:
+   
+   1. Ejecuta "instalar.bat"
+   2. Ejecuta "iniciar.bat"
+
+⚠️  PROBLEMAS COMUNES:
+
+   • Error "Python no encontrado" → Usa instalar_completo.bat
+   • Error "Acceso denegado" → Ejecuta como administrador  
+   • No se abre el navegador → Ve a http://127.0.0.1:8000/dashboard
+   • Puerto ocupado → Cierra otros programas que usen puerto 8000
+
+📋 ARCHIVOS IMPORTANTES:
+
+   • instalar_completo.bat → Instalación completa (Python + Sistema)
+   • instalar.bat → Solo dependencias (si ya tienes Python)
+   • iniciar.bat → Ejecutar el sistema
+   • README.md → Documentación completa
+
+📞 SOPORTE:
+   
+   Para problemas o dudas, contacta al desarrollador con:
+   - Captura de pantalla del error
+   - Versión de Windows
+   - Descripción del problema
+
+═══════════════════════════════════════════════════════════════
+   ¡El sistema está listo para gestionar tu negocio! 🎉
+═══════════════════════════════════════════════════════════════

@@ -1,0 +1,132 @@
+{% extends 'base.html' %}
+{% load formato_numeros %}
+{% block content %}
+
+{% if mensaje %}
+    <div style="background:#d4edda; color:#155724; border:1px solid #c3e6cb; padding:1em; border-radius:7px; margin-bottom:1.5em; font-size:1.1em; max-width:800px; margin:auto; text-align:center;">
+        {{ mensaje }}<br>
+        <a href="" class="btn btn-success btn-lg" style="margin:1em 0.5em 0 0;">Registrar otra compra</a>
+        <a href="{% url 'dashboard' %}" class="btn btn-secondary btn-lg" style="margin:1em 0 0 0.5em;">Volver al dashboard</a>
+    </div>
+{% else %}
+<form method="post" style="max-width:800px; margin:auto; margin-top:0; background:#fff; padding:0.5em; border-radius:12px; box-shadow:0 2px 12px #0002; font-size:1.3em;">
+    {% csrf_token %}
+    
+    <h2 style="color:#28a745; margin-bottom:0.1em;">📦 Nueva Compra</h2>
+    
+    {{ form.fecha }}
+    {{ form.non_field_errors }}
+    
+    <div style="margin-bottom:1.0em;">
+        <label class="form-label" style="font-size: 1.1em;">🥚 Tipo de Huevo</label><br>
+        <div class="btn-group" role="group" aria-label="Color">
+            <input type="radio" class="btn-check" name="categoria" id="cat-blancos" value="blancos" autocomplete="off" {% if form.categoria.value == 'blancos' %}checked{% endif %}>
+            <label class="btn btn-outline-primary btn-lg" for="cat-blancos" style="font-size: 0.9em;">🥚 Blancos</label>
+            <input type="radio" class="btn-check" name="categoria" id="cat-color" value="color" autocomplete="off" {% if form.categoria.value == 'color' %}checked{% endif %}>
+            <label class="btn btn-outline-warning btn-lg" for="cat-color" style="font-size: 0.9em;">🥚 Color</label>
+        </div>
+        {% if form.categoria.errors %}
+            <div class="text-danger" style="margin-top:0.5em; font-size:0.1em; font-weight:bold; color:#b30000;">{{ form.categoria.errors.0 }}</div>
+        {% endif %}
+    </div>
+    
+    <div style="margin-bottom:0.5em;">
+        <label class="form-label" style="font-size: 0.9em;">📏 Tamaño</label><br>
+        {{ form.subcategoria }}
+        {% if form.subcategoria.errors %}<div class="text-danger">{{ form.subcategoria.errors.0 }}</div>{% endif %}
+        <small style="color: #666;font-size: 0.6em;;">Seleccione el tamaño del huevo (1, 2, M, 3, 4, S, R)</small>
+    </div>
+    
+    <div style="margin-bottom:0.5em;">
+        <label class="form-label" style="font-size: 0.9em;">📦 Unidad de Compra</label><br>
+        {{ form.unidad }}
+        {% if form.unidad.errors %}<div class="text-danger">{{ form.unidad.errors.0 }}</div>{% endif %}
+        <small style="color: #666;font-size: 0.6em;;">Cajón (360 huevos), Maple (30 huevos), Docena (12 huevos)</small>
+    </div>
+    
+    <div style="margin-bottom:0.5.5em;">
+        <label class="form-label" style="font-size: 0.9em;">🔢 Cantidad</label><br>
+        {{ form.cantidad }}
+        {% if form.cantidad.errors %}<div class="text-danger">{{ form.cantidad.errors.0 }}</div>{% endif %}
+        <small style="color: #666;font-size: 0.6em;">Ingrese la cantidad de unidades compradas</small>
+    </div>
+    
+    <div style="margin-bottom:0.5em;">
+        <label class="form-label" style="font-size: 0.9em;">💰 Precio por Unidad ($)</label><br>
+        {{ form.precio_unitario }}
+        {% if form.precio_unitario.errors %}<div class="text-danger">{{ form.precio_unitario.errors.0 }}</div>{% endif %}
+        <small style="color: #666; font-size: 0.6em;">Precio por cajón, maple o docena según la unidad seleccionada</small>
+    </div>
+    
+    <button type="submit" style="background:#28a745; color:#fff; border:none; padding:1em 2.5em; border-radius:7px; font-size:1.2em; cursor:pointer; width:100%; margin-top:1em;">✅ Registrar Compra</button>
+</form>
+{% endif %}
+
+<style>
+.form-control-lg, select.form-control-lg, input.form-control-lg {
+    font-size: 0.7em;
+    padding: 0.7em 1em;
+    border-radius: 4px;
+    min-width: 80px;
+    border: 1px solid #ddd;
+    transition: border-color 0.3s ease;
+}
+.form-control-lg:focus {
+    border-color: #28a745;
+    box-shadow: 0 0 0 0.2rem rgba(40, 167, 69, 0.25);
+}
+.btn-group .btn {
+    margin-right: 5px;
+    transition: all 0.3s ease;
+}
+.btn-group .btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+}
+.form-label {
+    font-weight: 600;
+    color: #333;
+    margin-bottom: 0.5em;
+}
+.text-danger {
+    color: #dc3545 !important;
+    font-weight: 500;
+    margin-top: 0.5em;
+}
+small {
+    display: block;
+    margin-top: 0.5em;
+    font-size: 0.9em;
+}
+</style>
+
+<script>
+// Función para formatear números en tiempo real
+function formatearNumeroInput(input) {
+    let valor = input.value.replace(/[^\d.,]/g, '');
+    if (valor) {
+        // Convertir a número y formatear
+        let numero = parseFloat(valor.replace(',', '.'));
+        if (!isNaN(numero)) {
+            // Mostrar tooltip con formato
+            input.title = `Valor: $${numero.toLocaleString('es-AR', {minimumFractionDigits: 2, maximumFractionDigits: 2})}`;
+        }
+    }
+}
+
+// Agregar evento a campos monetarios
+document.addEventListener('DOMContentLoaded', function() {
+    const montoInputs = document.querySelectorAll('input[name*="costo"], input[name*="precio"], input[type="number"]');
+    montoInputs.forEach(input => {
+        input.addEventListener('input', function() {
+            formatearNumeroInput(this);
+        });
+        
+        // Agregar placeholder más descriptivo para campos monetarios
+        if (input.name.includes('costo') || input.name.includes('precio')) {
+            input.placeholder = 'Ej: 15000.50 o 1500000';
+        }
+    });
+});
+</script>
+{% endblock %}
