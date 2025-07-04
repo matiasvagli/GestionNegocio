@@ -174,11 +174,10 @@ ALLOWED_HOSTS=tu-dominio.com,www.tu-dominio.com
 ⭐ **¡Dale una estrella en GitHub!** - Eso me ayuda mucho y motiva a seguir mejorando
 
 ### **¿Tienes dudas o sugerencias?**
-📧 **Contáctame**: Estoy disponible para ayudarte con cualquier consulta
-- 💼 **LinkedIn**: [Tu perfil de LinkedIn]
-- 📱 **WhatsApp**: [Tu número] 
-- 📧 **Email**: [tu-email@ejemplo.com]
-- 🐙 **GitHub**: [Tu usuario de GitHub]
+📧 **Contáctame**: Estoy disponible para ayudarte .
+
+- 📧 Vaglimatias@gmail.com
+
 
 ### **¿Encontraste un bug?**
 🐛 **Reporta issues**: Abre un issue en GitHub describiendo el problema
